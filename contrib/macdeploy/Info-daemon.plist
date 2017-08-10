@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist SYSTEM "file://localhost/System/Library/DTDs/PropertyList.dtd">
+<plist version="0.9">
+<dict>
+        <key>CFBundleInfoDictionaryVersion</key>
+        <string>6.0</string>
+        <key>CFBundleDevelopmentRegion</key>
+        <string>English</string>
+        <key>CFBundleGetInfoString</key>
+        <string>TheGCCcoin [XST] Complete Anonymity 1.3.0.0</string>
+        <key>CFBundleIdentifier</key>
+        <string>com.stealth-coin.TheGCCcoin-qt</string>
+        <key>CFBundleShortVersionString</key>
+        <string>1.3.0.0</string>
+        <key>CFBundleSignature</key>
+        <string>oXST</string>
+        <key>CFBundleVersion</key>
+        <string>1.3.0.0</string>
+        <key>CFBundleName</key>
+        <string>TheGCCcoind</string>
+</dict>
+</plist>

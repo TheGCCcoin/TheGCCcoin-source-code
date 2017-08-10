@@ -1,0 +1,9 @@
+Building TheGCCcoin
+
+See doc/readme-qt.rst for instructions on building TheGCCcoin QT,
+the intended-for-end-users, nice-graphical-interface, reference
+implementation of TheGCCcoin.
+
+See doc/build-*.txt for instructions on building TheGCCcoind,
+the intended-for-services, no-graphical-interface, reference
+implementation of TheGCCcoin.

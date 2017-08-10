@@ -1,0 +1,217 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file alias="bitcoin">res/icons/TheGCCcoin-128.png</file>
+        <file alias="address-book">res/icons/address-book.png</file>
+        <file alias="quit">res/icons/quit.png</file>
+        <file alias="send">res/icons/send.png</file>
+        <file alias="toolbar">res/icons/TheGCCcoin-16.png</file>
+        <file alias="connect_0">res/icons/connect0_16.png</file>
+        <file alias="connect_1">res/icons/connect1_16.png</file>
+        <file alias="connect_2">res/icons/connect2_16.png</file>
+        <file alias="connect_3">res/icons/connect3_16.png</file>
+        <file alias="connect_4">res/icons/connect4_16.png</file>
+        <file alias="transaction_0">res/icons/transaction0.png</file>
+        <file alias="transaction_confirmed">res/icons/transaction2.png</file>
+        <file alias="transaction_1">res/icons/clock1.png</file>
+        <file alias="transaction_2">res/icons/clock2.png</file>
+        <file alias="transaction_3">res/icons/clock3.png</file>
+        <file alias="transaction_4">res/icons/clock4.png</file>
+        <file alias="transaction_5">res/icons/clock5.png</file>
+        <file alias="options">res/icons/configure.png</file>
+        <file alias="receiving_addresses">res/icons/receive.png</file>
+        <file alias="editpaste">res/icons/editpaste.png</file>
+        <file alias="editcopy">res/icons/editcopy.png</file>
+        <file alias="add">res/icons/add.png</file>
+        <file alias="bitcoin_testnet">res/icons/TheGCCcoin-128.png</file>
+        <file alias="toolbar_testnet">res/icons/TheGCCcoin-16.png</file>
+        <file alias="edit">res/icons/edit.png</file>
+        <file alias="history">res/icons/history.png</file>
+        <file alias="overview">res/icons/overview.png</file>
+        <file alias="export">res/icons/export.png</file>
+        <file alias="synced">res/icons/synced.png</file>
+        <file alias="remove">res/icons/remove.png</file>
+        <file alias="tx_mined">res/icons/tx_mined.png</file>
+        <file alias="tx_input">res/icons/tx_input.png</file>
+        <file alias="tx_output">res/icons/tx_output.png</file>
+        <file alias="tx_inout">res/icons/tx_inout.png</file>
+        <file alias="lock_closed">res/icons/lock_closed.png</file>
+        <file alias="lock_open">res/icons/lock_open.png</file>
+        <file alias="minting">res/icons/mining.png</file>
+        <file alias="key">res/icons/key.png</file>
+        <file alias="filesave">res/icons/filesave.png</file>
+        <file alias="qrcode">res/icons/qrcode.png</file>
+        <file alias="debugwindow">res/icons/debugwindow.png</file>
+    </qresource>
+    <qresource prefix="/images">
+        <file alias="about">res/images/about.png</file>
+        <file alias="splash">res/images/splash.png</file>
+        <file alias="backg">res/images/wallet.png</file>
+        <file alias="shadowbar">res/images/shadow9202.png</file>
+    </qresource>
+    <qresource prefix="/movies">
+        <file alias="update_spinner">res/movies/update_spinner.mng</file>
+    </qresource>
+    <qresource prefix="/translations">
+        <file alias="en">locale/bitcoin_en.qm</file>
+        <file alias="ru">locale/bitcoin_ru.qm</file>
+    </qresource>
+    <qresource prefix="/resources">
+        <file>res/images/bg_version.png</file>
+        <file>res/images/bg_menu.png</file>
+        <file>res/images/bg_menu_item.png</file>
+        <file>res/images/bg_menu_item_first.png</file>
+        <file>res/images/bg_sel.png</file>
+        <file>res/images/bg_triangle.png</file>
+        <file>res/images/btn-act/bg_copy_addr.png</file>
+        <file>res/images/btn-act/bg_delete.png</file>
+        <file>res/images/btn-act/bg_new_addr.png</file>
+        <file>res/images/btn-act/bg_show_qr.png</file>
+        <file>res/images/btn-act/bg_sign_msg.png</file>
+        <file>res/images/btn-def/bg_addr_book.png</file>
+        <file>res/images/btn-def/bg_copy_addr.png</file>
+        <file>res/images/btn-def/bg_copy_clip.png</file>
+        <file>res/images/btn-def/bg_delete.png</file>
+        <file>res/images/btn-def/bg_new_addr.png</file>
+        <file>res/images/btn-def/bg_remove.png</file>
+        <file>res/images/btn-def/bg_show_qr.png</file>
+        <file>res/images/btn-def/bg_sign_msg.png</file>
+        <file>res/images/icons-act/bg_btn_down.png</file>
+        <file>res/images/icons-act/bg_btn_up.png</file>
+        <file>res/images/icons-act/ico_addr_book.png</file>
+        <file>res/images/icons-act/ico_block_explorer.png</file>
+        <file>res/images/icons-act/ico_check.png</file>
+        <file>res/images/icons-act/ico_income_expense.png</file>
+        <file>res/images/icons-act/ico_increase.png</file>
+        <file>res/images/icons-act/ico_overview.png</file>
+        <file>res/images/icons-act/ico_recv_xst.png</file>
+        <file>res/images/icons-act/ico_send_xst.png</file>
+        <file>res/images/icons-act/ico_social.png</file>
+        <file>res/images/icons-act/ico_statistics.png</file>
+        <file>res/images/icons-act/ico_stealth.png</file>
+        <file>res/images/icons-act/ico_transactions.png</file>
+		<file>res/images/icons-act/ico_transactions2.png</file>
+        <file>res/images/icons-big/ico_addr_book.png</file>
+        <file>res/images/icons-big/ico_block_explorer.png</file>
+        <file>res/images/icons-big/ico_income_expense.png</file>
+        <file>res/images/icons-big/ico_overview.png</file>
+        <file>res/images/icons-big/ico_recv_xst.png</file>
+        <file>res/images/icons-big/ico_send_xst.png</file>
+        <file>res/images/icons-big/ico_social.png</file>
+        <file>res/images/icons-big/ico_statistics.png</file>
+        <file>res/images/icons-big/ico_transactions.png</file>
+        <file>res/images/icons-dis/ico_income_expense.png</file>
+        <file>res/images/icons-dis/ico_social.png</file>
+        <file>res/images/icons-dis/ico_statistics.png</file>
+        <file>res/images/icons-def/bg_btn_down.png</file>
+        <file>res/images/icons-def/bg_btn_up.png</file>
+        <file>res/images/icons-def/ico_addr_book.png</file>
+        <file>res/images/icons-def/ico_block_explorer.png</file>
+        <file>res/images/icons-def/ico_check.png</file>
+        <file>res/images/icons-def/ico_income_expense.png</file>
+        <file>res/images/icons-def/ico_increase.png</file>
+        <file>res/images/icons-def/ico_overview.png</file>
+        <file>res/images/icons-def/ico_recv_xst.png</file>
+        <file>res/images/icons-def/ico_send_xst.png</file>
+        <file>res/images/icons-def/ico_social.png</file>
+        <file>res/images/icons-def/ico_statistics.png</file>
+        <file>res/images/icons-def/ico_stealth.png</file>
+        <file>res/images/icons-def/ico_transactions.png</file>
+        <file>res/images/icons-def/ico_tri_down.png</file>
+        <file>res/images/icons-def/ico_tri_up.png</file>
+        <file>res/images/social-act/arrow_left.png</file>
+        <file>res/images/social-act/arrow_right.png</file>
+        <file>res/images/social-def/arrow_left.png</file>
+        <file>res/images/social-def/arrow_right.png</file>
+        <file>res/images/bg_combo_down.png</file>
+        <file>res/images/btn-act/bg_verify_msg.png</file>
+        <file>res/images/btn-def/bg_verify_msg.png</file>
+        <file>res/images/bg_triangle_right.png</file>
+        <file>res/images/bg_date_spin.png</file>
+        <file>res/images/popup-act/bg_menu_about_qt.png</file>
+        <file>res/images/popup-act/bg_menu_about_sc.png</file>
+        <file>res/images/popup-act/bg_menu_backup.png</file>
+        <file>res/images/popup-act/bg_menu_change.png</file>
+        <file>res/images/popup-act/bg_menu_debug.png</file>
+        <file>res/images/popup-act/bg_menu_encrypt.png</file>
+        <file>res/images/popup-act/bg_menu_exit.png</file>
+        <file>res/images/popup-act/bg_menu_exit_mac.png</file>
+        <file>res/images/popup-act/bg_menu_export.png</file>
+        <file>res/images/popup-act/bg_menu_options.png</file>
+        <file>res/images/popup-act/bg_menu_preferences.png</file>
+        <file>res/images/popup-act/bg_menu_return.png</file>
+        <file>res/images/popup-act/bg_menu_sign.png</file>
+        <file>res/images/popup-act/bg_menu_verify.png</file>
+        <file>res/images/popup-def/bg_menu_about_qt.png</file>
+        <file>res/images/popup-def/bg_menu_about_sc.png</file>
+        <file>res/images/popup-def/bg_menu_backup.png</file>
+        <file>res/images/popup-def/bg_menu_change.png</file>
+        <file>res/images/popup-def/bg_menu_debug.png</file>
+        <file>res/images/popup-def/bg_menu_encrypt.png</file>
+        <file>res/images/popup-def/bg_menu_exit.png</file>
+        <file>res/images/popup-def/bg_menu_exit_mac.png</file>
+        <file>res/images/popup-def/bg_menu_export.png</file>
+        <file>res/images/popup-def/bg_menu_options.png</file>
+        <file>res/images/popup-def/bg_menu_preferences.png</file>
+        <file>res/images/popup-def/bg_menu_return.png</file>
+        <file>res/images/popup-def/bg_menu_sign.png</file>
+        <file>res/images/popup-def/bg_menu_verify.png</file>
+        <file>res/images/popup-inact/bg_menu_change.png</file>
+        <file>res/images/popup-inact/bg_menu_encrypt.png</file>
+        <file>res/images/icons-act/ico_home.png</file>
+        <file>res/images/icons-def/ico_home.png</file>
+        <file>res/images/icons-act/bg_checkbox.png</file>
+        <file>res/images/icons-def/bg_checkbox.png</file>
+        <file>res/images/icons-def/bg_checkbox_hover.png</file>
+        <file>res/images/icons-def/bg_checkbox_pressed.png</file>
+        <file>res/images/btn-act/bg_clear_all.png</file>
+		<file>res/images/btn-act/bg_send_thegcccoin.png</file>
+        <file>res/images/btn-act/bg_add_recipient.png</file>
+		<file>res/images/btn-def/bg_send_thegcccoin.png</file>
+        <file>res/images/btn-def/bg_clear_all.png</file>
+        <file>res/images/btn-def/bg_add_recipient.png</file>
+        <file>res/images/btn-act/bg_entry_remove.png</file>
+        <file>res/images/btn-act/bg_entry_address.png</file>
+        <file>res/images/btn-act/bg_entry_paste.png</file>
+        <file>res/images/btn-def/bg_entry_remove.png</file>
+        <file>res/images/btn-def/bg_entry_address.png</file>
+        <file>res/images/btn-def/bg_entry_paste.png</file>
+        <file>res/images/social-act/bg_blog.png</file>
+        <file>res/images/social-act/bg_forum.png</file>
+        <file>res/images/social-act/bg_twitter.png</file>
+        <file>res/images/social-act/bg_website.png</file>
+        <file>res/images/social-def/bg_blog.png</file>
+        <file>res/images/social-def/bg_forum.png</file>
+        <file>res/images/social-def/bg_twitter.png</file>
+        <file>res/images/social-def/bg_website.png</file>
+        <file>res/fonts/Roboto/Roboto-Regular.ttf</file>
+        <file>res/fonts/Windsong/Windsong.ttf</file>
+        <file>res/qss/style.qss</file>
+        <file>res/images/icons/ico_lock.png</file>
+        <file>res/images/icons/ico_unlock.png</file>
+        <file>res/images/icons/ico_not_encrypted.png</file>
+        <file>res/images/icons/ico_unlock_red.png</file>
+        <file>res/images/bg_about.png</file>
+        <file>res/images/bg_lt_logo.png</file>
+        <file>res/images/bg_splash.png</file>
+    </qresource>
+    <qresource prefix="/sidebar">
+        <file>res/images/sidebar_act/ico_addr_book.png</file>
+        <file>res/images/sidebar_def/ico_addr_book.png</file>
+        <file>res/images/sidebar_act/ico_block_explorer.png</file>
+        <file>res/images/sidebar_def/ico_block_explorer.png</file>
+        <file>res/images/sidebar_act/ico_income_expense.png</file>
+        <file>res/images/sidebar_def/ico_income_expense.png</file>
+        <file>res/images/sidebar_act/ico_overview.png</file>
+        <file>res/images/sidebar_def/ico_overview.png</file>
+        <file>res/images/sidebar_act/ico_recv_xst.png</file>
+        <file>res/images/sidebar_def/ico_recv_xst.png</file>
+        <file>res/images/sidebar_act/ico_send_xst.png</file>
+        <file>res/images/sidebar_def/ico_send_xst.png</file>
+        <file>res/images/sidebar_act/ico_social.png</file>
+        <file>res/images/sidebar_def/ico_social.png</file>
+        <file>res/images/sidebar_act/ico_statistics.png</file>
+        <file>res/images/sidebar_def/ico_statistics.png</file>
+        <file>res/images/sidebar_act/ico_transactions.png</file>
+        <file>res/images/sidebar_def/ico_transactions.png</file>
+    </qresource>
+</RCC>

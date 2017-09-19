@@ -11,14 +11,14 @@
         <key>CFBundleGetInfoString</key>
         <string>TheGCCcoin [XST] Complete Anonymity 1.2.0.1</string>
         <key>CFBundleExecutable</key>
-        <string>Stealth Qt</string>
+        <string>TheGCCcoin Qt</string>
         <key>CFBundleIdentifier</key>
-        <string>com.stealth-coin.TheGCCcoin-qt</string>
+        <string>com.TheGCCcoin-Qt.TheGCCcoin-Qt</string>
         <key>CFBundleShortVersionString</key>
-        <string>1.2.0.1</string>
+        <string>2.2.3.2</string>
         <key>CFBundleSignature</key>
         <string>oXST</string>
         <key>CFBundleVersion</key>
-        <string>1.2.0.1</string>
+        <string>2.2.3.2</string>
 </dict>
 </plist>

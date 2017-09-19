@@ -1,0 +1,86 @@
+How to compile GCC coin on Windows
+----------------------------------
+Environment: mingw 4.9.2 32bit + msys 1.0.11 + Qt5.5.1
+
+# Install msys
+Reference guide: http://www.mingw.org/wiki/MSYS
+
+# Install Qt and mingw
+Downlod online installer: https://www1.qt.io/download-open-source
+Using Qt installer install Qt 5.5.1(+components) and mingw 4.9.2 32bit runtime.
+
+# Open msys shell and mount mingw to msys:
+mount c:/mingw /mingw
+
+# Downlod dependencies archive
+https://drive.google.com/open?id=0B0il7eoO84-sM2VvYzRYY2RNZUE
+Unpack and mount to msys filesystem too, for example: mount d:/deps /usr/local/deps
+
+Open msys shell and compile dependencies using commands below
+(replace system dependent paths if needed)
+-----------------------------------------
+
+# db-4.8.30.NC
+cd build_windows
+../dist/configure --disable-replication --enable-mingw --enable-cxx --prefix=/mingw
+make
+
+# libevent-2.1.8-stable
+./configure --prefix=/mingw
+make
+
+# miniupnpc-2.0.20170509
+set Path=%Path%;d:\Qt5.5\Tools\mingw492_32\bin
+mingw32-make -f Makefile.mingw init upnpc-static
+
+# boost_1_64_0
+set Path=%Path%;d:\Qt5.5\Tools\mingw492_32\bin
+bootstrap.bat gcc
+b2 --build-type=complete --with-chrono --with-filesystem --with-program_options --with-system --with-thread toolset=gcc variant=debug,release link=static threading=multi runtime-link=static stage
+
+# leveldb
+TARGET_OS=NATIVE_WINDOWS make libleveldb.a libmemenv.a
+
+# libpng-1.6.16
+./configure --disable-shared --prefix=/mingw
+make
+cp .libs/libpng16.a .libs/libpng.a
+
+# qrencode-3.4.4
+LIBS="../libpng-1.6.16/.libs/libpng.a ../../mingw/i686-w64-mingw32/lib/libz.a"
+png_CFLAGS="-I../libpng-1.6.16"
+png_LIBS="-L../libpng-1.6.16/.libs"
+configure --enable-static --disable-shared --without-tools --prefix=/mingw
+make
+
+# openssl-1.0.1k
+./Configure no-zlib no-shared no-dso no-krb5 no-camellia no-capieng no-cast no-cms no-dtls1 no-gost no-gmp no-heartbeats no-idea no-jpake no-md2 no-mdc2 no-rc5 no-rdrand no-rfc3779 no-rsax no-sctp no-seed no-sha0 no-static_engine no-whirlpool no-rc2 no-rc4 no-ssl2 no-ssl3 mingw --prefix=/mingw
+make
+
+# cryptopp
+make
+
+# zlib-1.2.11
+make -f win32/Makefile.gcc
+
+
+Build GCC coin wallet
+---------------------
+Open Qt creator and open GCC project file: TheGCCcoin.pro
+Set DEPS_PATH in win32 section relative to your system.
+Build project in Qt.
+
+Build GCC coin daemon
+---------------------
+Open makefile.mingw and replace paths to include and lib files according to compiled dependencies above.
+cd src
+make -f makefile.mingw
+strip TheGCCcoind.exe
+
+Deploy Qt app on Windows
+------------------------
+http://wiki.qt.io/Deploy_an_Application_on_Windows
+
+More information on compilation bitcoin based crypto currency
+-------------------------------------------------------------
+https://bitcointalk.org/index.php?topic=149479.0

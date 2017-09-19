@@ -1,0 +1,24 @@
+How to compile GCC coin on Linux
+-------------------------------
+Environment: Ubuntu 16.06 + Qt5.5.1
+
+Install Qt
+----------
+Download Qt online installer, run and install Qt 5.5 + components + QtCreator.
+https://www1.qt.io/download-open-source
+
+Build GCC coin wallet
+---------------------
+Follow readme-qt.rst.
+
+Build GCC coin daemon
+---------------------
+Follow build-unix.txt.
+
+Deploy Qt app on Linux
+----------------------
+todo...
+
+More information on compilation bitcoin based crypto currency
+-------------------------------------------------------------
+https://bitcointalk.org/index.php?topic=149479.0

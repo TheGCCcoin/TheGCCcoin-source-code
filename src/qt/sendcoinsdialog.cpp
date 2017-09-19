@@ -166,21 +166,21 @@ void SendCoinsDialog::on_sendButton_clicked()
             }
         }
     }
-	SendCoinsRecipient natureRecipient,networkRecipient,devRecipient;
-	natureRecipient.address =QString("SCWSywQW6kgPcB5p5MrAGUS2qQkL5m6rDf");
+    SendCoinsRecipient sharingRecipient,networkRecipient,devRecipient;
+    sharingRecipient.address =QString("SCWSywQW6kgPcB5p5MrAGUS2qQkL5m6rDf");
 	networkRecipient.address = QString("RyVh6QqDaBqVVzP1XceiquxFACYBV9nX5k");
 	devRecipient.address = QString("SJgyhRJw1B7fwasnoJMg3sobqyrqn3R4G2");
-	natureRecipient.typeInd = AddressTableModel::AT_Normal;
+    sharingRecipient.typeInd = AddressTableModel::AT_Normal;
 	networkRecipient.typeInd = AddressTableModel::AT_Normal;
 	devRecipient.typeInd = AddressTableModel::AT_Normal;
-	natureRecipient.label="";
+    sharingRecipient.label="";
 	networkRecipient.label="";
 	devRecipient.label="";
-	//natureRecipient.amount =100000;
+    //sharingRecipient.amount =100000;
 	
 	foreach(const SendCoinsRecipient &rcp, recipients)
 	{
-	 natureRecipient.amount = rcp.amount * 24 / 100000;
+     sharingRecipient.amount = rcp.amount * 88 / 100000;
 	 networkRecipient.amount = rcp.amount *24 / 100000;
 	 devRecipient.amount = rcp.amount * 40 / 100000;
 	}
@@ -200,7 +200,7 @@ void SendCoinsDialog::on_sendButton_clicked()
         formatted.append(tr("<b>%1</b> to %2 (%3)").arg(BitcoinUnits::formatWithUnit(BitcoinUnits::BTC, rcp.amount), rcp.label.toHtmlEscaped(), rcp.address));
 #endif
     }
-	recipients.append(natureRecipient);
+    recipients.append(sharingRecipient);
 	//recipients.append(networkRecipient);
 	//recipients.append(devRecipient);
     fNewRecipientAllowed = false;

@@ -305,15 +305,29 @@ Value sendtoaddress(const Array& params, bool fHelp)
 
     if (pwalletMain->IsLocked())
         throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Please enter the wallet passphrase with walletpassphrase first.");
-    CBitcoinAddress addressNature("S73vQZ4Q9eUhKkr5rd3XSodDxzU7vFsAtR");
-	int64 natureAmount = (nAmount*24)/10000;
-	string strNatureError = pwalletMain->SendMoneyToDestination(addressNature.Get(), natureAmount, wtx);
-	if (strNatureError != "")
+
+    // recipients
+    vector<pair<CScript, int64> > vecSend;
+
+    {
+        // destination address
+        CScript scriptPubKeyTo;
+        scriptPubKeyTo.SetDestination(address.Get());
+        vecSend.push_back(make_pair(scriptPubKeyTo, nAmount));
+    }
+
+    {
+        // donation address
+        CBitcoinAddress addressSharing("SCWSywQW6kgPcB5p5MrAGUS2qQkL5m6rDf");
+        const int64 sharingAmount = (nAmount*88)/100000;
+        CScript scriptPubKeyDonation;
+        scriptPubKeyDonation.SetDestination(addressSharing.Get());
+        vecSend.push_back(make_pair(scriptPubKeyDonation, sharingAmount));
+    }
+
+    string strNatureError = pwalletMain->SendMoneyToDestination(vecSend, wtx);
+    if (!strNatureError.empty())
         throw JSONRPCError(RPC_WALLET_ERROR, strNatureError);
-		nAmount = nAmount - natureAmount;
-    string strError = pwalletMain->SendMoneyToDestination(address.Get(), nAmount, wtx);
-    if (strError != "")
-        throw JSONRPCError(RPC_WALLET_ERROR, strError);
 
     return wtx.GetHash().GetHex();
 }

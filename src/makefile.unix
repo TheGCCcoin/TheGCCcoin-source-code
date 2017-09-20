@@ -48,10 +48,10 @@
 # Build STATIC for this makefile (1=static, 0=not)
 STATIC=1
 
-DEPSDIR=/usr/local
+DEPSDIR=/opt/local
 
 # ubuntu puts boost libs at /usr/lib/x86_64-linux-gnu
-LIB_BOOST="/usr/lib/x86_64-linux-gnu"
+LIB_BOOST="/opt/local/lib"
 
 # this combo works for mint and ubuntu
 INCLUDEPATHS= \
@@ -63,23 +63,14 @@ INCLUDEPATHS= \
  -I"$(CURDIR)/tor/ext" \
  -I"$(CURDIR)/tor/ext/curve25519_donna" \
  -I"$(CURDIR)/tor/or" \
- -I"/usr/include" \
- -I"$(CURDIR)/leveldb/include" \
- -I"$(DEPSDIR)/include" \
- -I"$(DEPSDIR)/ssl/include" \
- -I"$(DEPSDIR)/include/boost" \
- -I"$(DEPSDIR)/include/event2" \
- -I"$(DEPSDIR)/BerkeleyDB.4.8/include" \
- -I"$(CURDIR)/leveldb/helpers"
+ -I"$(DEPSDIR)/include"
 
 LIBPATHS= \
- -L"$(DEPSDIR)/lib" \
- -L"$(DEPSDIR)/BerkeleyDB.4.8/lib" \
- -L"$(DEPSDIR)/ssl/lib" 
+ -L"$(DEPSDIR)/lib" 
 
 CFLAGS += $(INCLUDEPATHS)
 
-USE_UPNP:=-
+USE_UPNP:=1
 USE_IPV6:=1
 
 LINK:=$(CXX)
@@ -93,18 +84,18 @@ ifeq ($(STATIC),1)
 TESTLIBS += \
  $(DEPSDIR)/lib/libboost_unit_test_framework.a
 LIBS += \
- /usr/lib/x86_64-linux-gnu/libdb_cxx-5.3.a \
- $(LIB_BOOST)/libboost_system.a \
- $(LIB_BOOST)/libboost_filesystem.a \
- $(LIB_BOOST)/libboost_program_options.a \
- $(LIB_BOOST)/libboost_thread.a \
- /usr/lib/x86_64-linux-gnu/libssl.a \
- /usr/lib/x86_64-linux-gnu/libcrypto.a \
- /usr/lib/x86_64-linux-gnu/libz.a \
- /usr/lib/x86_64-linux-gnu/libevent.a \
- /usr/lib/libcryptopp.a \
- $(CURDIR)/leveldb/libleveldb.a \
- $(CURDIR)/leveldb/libmemenv.a
+ $(DEPSDIR)/lib/libdb_cxx-4.8.a \
+ $(LIB_BOOST)/libboost_system-mt-s.a \
+ $(LIB_BOOST)/libboost_filesystem-mt-s.a \
+ $(LIB_BOOST)/libboost_program_options-mt-s.a \
+ $(LIB_BOOST)/libboost_thread-mt-s.a \
+ $(DEPSDIR)/lib/libssl.a \
+ $(DEPSDIR)/lib/libcrypto.a \
+ $(DEPSDIR)/lib/libz.a \
+ $(DEPSDIR)/lib/libevent.a \
+ $(DEPSDIR)/lib/libcryptopp.a \
+ $(DEPSDIR)/lib/libleveldb.a \
+ $(DEPSDIR)/lib/libmemenv.a
 else
 TESTLIBS += \
  -lboost_unit_test_framework
@@ -122,7 +113,7 @@ else
 	TESTDEFS += -DBOOST_TEST_DYN_LINK
 endif
 
-
+ifneq ($(STATIC),1)
 LIBS += \
  -Wl,-B$(LMODE) \
    -lboost_system$(BOOST_LIB_SUFFIX) \
@@ -136,7 +127,7 @@ LIBS += \
    -lz \
    -lcryptopp \
    -lrt
-
+endif
 
 ifneq (${USE_IPV6}, -)
 	DEFS += -DUSE_IPV6=$(USE_IPV6)
@@ -326,12 +317,12 @@ all: TheGCCcoind
 #
 # LevelDB support
 #
-MAKEOVERRIDES =
-LIBS += $(CURDIR)/leveldb/libleveldb.a $(CURDIR)/leveldb/libmemenv.a
-DEFS += $(addprefix -I,$(CURDIR)/leveldb/include)
-DEFS += $(addprefix -I,$(CURDIR)/leveldb/helpers)
-leveldb/libleveldb.a:
-	@echo "Building LevelDB ..." && cd leveldb && $(MAKE) CC=$(CC) CXX=$(CXX) OPT="$(xCXXFLAGS)" libleveldb.a libmemenv.a && cd ..
+#MAKEOVERRIDES =
+#LIBS += $(CURDIR)/leveldb/libleveldb.a $(CURDIR)/leveldb/libmemenv.a
+#DEFS += $(addprefix -I,$(CURDIR)/leveldb/include)
+#DEFS += $(addprefix -I,$(CURDIR)/leveldb/helpers)
+#leveldb/libleveldb.a:
+#	@echo "Building LevelDB ..." && cd leveldb && $(MAKE) CC=$(CC) CXX=$(CXX) OPT="$(xCXXFLAGS)" libleveldb.a libmemenv.a && cd ..
 
 
 test check: test_TheGCCcoin FORCE
@@ -406,7 +397,7 @@ obj/scrypt-x86.o: scrypt-x86.S
 obj/scrypt-x86_64.o: scrypt-x86_64.S
 	$(CXX) -c $(xCXXFLAGS) -MMD -o $@ $<
 
-TheGCCcoind: leveldb/libleveldb.a \
+TheGCCcoind: \
               $(OBJS:obj/%=obj/%) obj/stealth.o
 	$(CXX) $(CFLAGS) -o $@ $(LIBPATHS) $^ $(LIBS)
 
@@ -430,6 +421,6 @@ clean:
 	-rm -f obj/*.P
 	-rm -f obj-test/*.P
 	-rm -f obj/build.h
-	cd leveldb; make clean
+	#cd leveldb; make clean
 
 FORCE:

@@ -47,8 +47,7 @@ LEVELDB_LIB_PATH=$$DEPS_PATH/leveldb
 INCLUDEPATH += $$BOOST_INCLUDE_PATH $$BDB_INCLUDE_PATH $$OPENSSL_INCLUDE_PATH $$MINIUPNPC_INCLUDE_PATH $$QRENCODE_INCLUDE_PATH $$LIBEVENT_INCLUDE_PATH $$CRYPTO_INCLUDE_PATH $$LEVELDB_INCLUDE_PATH $$LEVELDB_HELPER_INCLUDE_PATH
 LIBS += $$join(BOOST_LIB_PATH,,-L,) $$join(BDB_LIB_PATH,,-L,) $$join(OPENSSL_LIB_PATH,,-L,) $$join(MINIUPNPC_LIB_PATH,,-L,) $$join(QRENCODE_LIB_PATH,,-L,) $$join(LIBEVENT_LIB_PATH,,-L,) $$join(CRYPTO_LIB_PATH,,-L,) $$join(LEVELDB_LIB_PATH,,-L,)
 }
-
-macx {
+else {
 DEPS_PATH=/opt/local
 BOOST_LIB_SUFFIX=-mt-s
 INCLUDE_PATH=$$DEPS_PATH/include
@@ -138,22 +137,6 @@ contains(USE_UPNP, -) {
     win32:LIBS += -liphlpapi
 }
 
-# LevelDB
-!win32:!macx {
-    DEFINES += USE_LEVELDB
-    INCLUDEPATH += $$PWD/src/leveldb/include $$PWD/src/leveldb/helpers
-    INCLUDEPATH += $$PWD/src/leveldb/include/leveldb $$PWD/src/leveldb/helpers/memenv
-    LIBS += $$PWD/src/leveldb/libleveldb.a $$PWD/src/leveldb/libmemenv.a
-    # we use QMAKE_CXXFLAGS_RELEASE even without RELEASE=1 because we use RELEASE to indicate linking preferences not -O preferences
-    genleveldb.commands = cd $$PWD/src/leveldb && CC=$$QMAKE_CC CXX=$$QMAKE_CXX $(MAKE) OPT=\"$$QMAKE_CXXFLAGS $$QMAKE_CXXFLAGS_RELEASE\" libleveldb.a libmemenv.a
-    genleveldb.target = $$PWD/src/leveldb/libleveldb.a
-    genleveldb.depends = FORCE
-    PRE_TARGETDEPS += $$PWD/src/leveldb/libleveldb.a
-    QMAKE_EXTRA_TARGETS += genleveldb
-    # Gross ugly hack that depends on qmake internals, unfortunately there is no other way to do it.
-    # QMAKE_CLEAN += $$PWD/src/leveldb/libleveldb.a; cd $$PWD/src/leveldb ; $(MAKE) clean
-}
-
 !win32 {
     # for extra security against potential buffer overflows
     QMAKE_CXXFLAGS += -fstack-protector
@@ -170,7 +153,6 @@ contains(USE_UPNP, -) {
     QMAKE_EXTRA_TARGETS += genbuild
     DEFINES += HAVE_BUILD_INFO
 }
-
 
 contains(USE_O3, 1) {
     message(Building without O3 optimization flag)
@@ -598,12 +580,6 @@ macx:QMAKE_CFLAGS_THREAD += -pthread
 macx:QMAKE_CXXFLAGS_THREAD += -pthread
 macx:QMAKE_INFO_PLIST = contrib/macdeploy/Info.plist
 
-!win32:!macx {
-# Set libraries and includes at end, to use platform-defined defaults if not overridden
-INCLUDEPATH += $$BOOST_INCLUDE_PATH $$BDB_INCLUDE_PATH $$OPENSSL_INCLUDE_PATH $$QRENCODE_INCLUDE_PATH $$LIBEVENT_INCLUDE_PATH $$LEVELDB_INCLUDE_PATH $$LEVELDB_HELPER_INCLUDE_PATH
-LIBS += $$join(BOOST_LIB_PATH,,-L,) $$join(BDB_LIB_PATH,,-L,) $$join(OPENSSL_LIB_PATH,,-L,) $$join(QRENCODE_LIB_PATH,,-L,) $$join(LIBEVENT_LIB_PATH,,-L,) $$join(CRYPTO_LIB_PATH,,-L,) $$join(LEVELDB_LIB_PATH,,-L,)
-}
-
 # libs
 LIBS += -lssl -lcrypto -ldb_cxx$$BDB_LIB_SUFFIX -lleveldb -lmemenv -levent -lcryptopp -lz
 
@@ -612,6 +588,7 @@ LIBS += -lboost_system$$BOOST_LIB_SUFFIX -lboost_filesystem$$BOOST_LIB_SUFFIX -l
 
 # -lgdi32 has to happen after -lcrypto (see  #681)
 win32:LIBS += -lws2_32 -lshlwapi -lmswsock -lole32 -loleaut32 -luuid -lgdi32
+unix:LIBS += -lrt -ldl -lgstreamer-0.10
 
 contains(RELEASE, 1) {
     !win32:!macx {

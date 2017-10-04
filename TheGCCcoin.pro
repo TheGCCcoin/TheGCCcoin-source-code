@@ -588,7 +588,7 @@ LIBS += -lboost_system$$BOOST_LIB_SUFFIX -lboost_filesystem$$BOOST_LIB_SUFFIX -l
 
 # -lgdi32 has to happen after -lcrypto (see  #681)
 win32:LIBS += -lws2_32 -lshlwapi -lmswsock -lole32 -loleaut32 -luuid -lgdi32
-unix:LIBS += -lrt -ldl -lgstreamer-0.10
+!win32:!macx:LIBS += -lrt -ldl -lgstreamer-0.10
 
 contains(RELEASE, 1) {
     !win32:!macx {

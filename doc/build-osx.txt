@@ -1,61 +1,118 @@
-Copyright (c) 2009-2012 Bitcoin Developers
-Distributed under the MIT/X11 software license, see the accompanying file
-license.txt or http://www.opensource.org/licenses/mit-license.php.  This
-product includes software developed by the OpenSSL Project for use in the
-OpenSSL Toolkit (http://www.openssl.org/).  This product includes cryptographic
-software written by Eric Young (eay@cryptsoft.com) and UPnP software written by
-Thomas Bernard.
+How to compile GCC coin on OS X
+-------------------------------
+Environment: OS X 10.11 + XCode + Qt5.5.1
 
+Preparation
+------------
+Prepare Mac (one possible solution is wmWare, see for details: https://techsviewer.com/how-to-install-mac-os-x-el-capitan-on-vmware-on-pc/).
+Install XCode from App Store.
+Clone source code from github.
 
-Mac OS X bitcoind build instructions
-Laszlo Hanyecz <solar@heliacal.net>
-Douglas Huff <dhuff@jrbobdobbs.org>
+Install the OS X command line tools
+-----------------------------------
+xcode-select --install
+when the popup appears, click Install.
 
-These instructions are not complete and probably won't work.
+Install Qt
+----------
+Download Qt online installer, run and install Qt 5.5 (clang 64big) + components + QtCreator.
+https://www1.qt.io/download-open-source
 
-They will be ammneded in the future.
+# Downlod dependencies archive
+https://drive.google.com/open?id=0B0il7eoO84-sM2VvYzRYY2RNZUE
 
-Please read this if you are on 10.9:
-https://github.com/bitcoin/bitcoin/issues/3228
+Open terminal and compile dependencies using commands below
+(replace system dependent paths if needed, by default installed in /opt/local)
+(dependencies compile as -mmacosx-version-min=10.7 -arch x86_64)
+------------------------------------------------------------------------------
 
+#cryptopp565
+export CXXFLAGS="-std=c++11 -mmacosx-version-min=10.7"
+make
+make install PREFIX=/opt/local
 
-See readme-qt.rst for instructions on building Bitcoin QT, the
-graphical user interface.
+#leveldb (perform just after cryptopp565)
+make libleveldb.a libmemenv.a
+cp libleveldb.a /opt/local/lib
+cp libmemenv.a /opt/local/lib
+cp src/leveldb/include/leveldb /opt/local/include
+cp src/leveldb/helpers/memenv /opt/local/include
 
-Tested on 10.5 and 10.6 intel.  PPC is not supported because it's big-endian.
+#miniupnpc
+INSTALLPREFIX=/opt/local make install
 
-All of the commands should be executed in Terminal.app.. it's in
-/Applications/Utilities
+#openssl
+./Configure darwin64-x86_64-cc shared --prefix=/opt/local --openssldir=/opt/local/openssl -stdlib=libstdc++ -mmacosx-version-min=10.7
+make
+make install
 
-You need to install XCode with all the options checked so that the compiler and
-everything is available in /usr not just /Developer I think it comes on the DVD
-but you can get the current version from http://developer.apple.com
+#boost_1_64_0 (https://github.com/bitcoin/bitcoin/issues/3228#issuecomment-46128018)
+bootstrap.sh clang
+./b2 --prefix=/opt/local --build-type=minimal --layout=tagged --with-chrono --with-filesystem --with-program_options --with-system --with-thread toolset=clang cxxflags="-stdlib=libstdc++ -mmacosx-version-min=10.7" linkflags="-stdlib=libstdc++" variant=release link=static threading=multi runtime-link=static install
 
+#db-4.8.30.NC
+apply patch: https://github.com/narkoleptik/os-x-berkeleydb-patch
+env CXXFLAGS="-stdlib=libstdc++ -mmacosx-version-min=10.7" LDFLAGS="-stdlib=libstdc++" ../dist/configure --disable-replication --enable-cxx --prefix=/opt/local
+make
+make install
 
-1.  Clone the github tree to get the source code:
+#libevent-2.1.8-stable
+#openssl bug: https://stackoverflow.com/questions/28943977/undefined-symbols-for-architecture-x86-64-on-os-x-with-fat-library
+./configure --prefix=/opt/local CPPFLAGS="-stdlib=libstdc++ -mmacosx-version-min=10.7 -I/opt/local/include" LDFLAGS="-stdlib=libstdc++ -L/opt/local/lib"
+make
+make install
 
-git clone git@github.com:bitcoin/bitcoin.git bitcoin
+# zlib-1.2.11
+export CC=clang
+export CXX=clang++
+export CFLAGS="-stdlib=libstdc++ -mmacosx-version-min=10.7 -I/opt/local/include"
+export CXXFLAGS="$CFLAGS"
+export CPPFLAGS="$CFLAGS"
+export LDFLAGS="-stdlib=libstdc++ -L/opt/local/lib"
+./configure --prefix=/opt/local --static --64
+make
+make install
 
-2.  Download and install MacPorts from http://www.macports.org/
+#libpng-1.6.16
+export CC=clang
+export CXX=clang++
+export CFLAGS="-stdlib=libstdc++ -mmacosx-version-min=10.7"
+export CXXFLAGS="$CFLAGS"
+export CPPFLAGS="$CFLAGS"
+export LDFLAGS="-stdlib=libstdc++"
+./configure --disable-shared --prefix=/opt/local
+make
+make install
 
-2a. (for 10.7 Lion)
-    Edit /opt/local/etc/macports/macports.conf and uncomment "build_arch i386"
+# qrencode-3.4.4
+export CFLAGS="-stdlib=libstdc++ -mmacosx-version-min=10.7"
+./configure --enable-static --enable-shared=no --without-tools --prefix=/opt/local
+make
+make install
 
-3.  Install dependencies from MacPorts
+Build GCC coin wallet
+---------------------
+Open Qt creator and open GCC project file: TheGCCcoin.pro
+Set Qt mkspec: macx-clang
+Build project in Qt.
 
-sudo port install boost db48 openssl miniupnpc
-
-Optionally install qrencode (and set USE_QRCODE=1):
-sudo port install qrencode
-
-4.  Now you should be able to build bitcoind:
-
-cd bitcoin/src
+Build GCC coin daemon
+---------------------
+Open makefile.osx and replace paths to include and lib files according to compiled dependencies above.
+cd src
 make -f makefile.osx
+strip TheGCCcoind.exe
 
-Run:
-  ./bitcoind --help  # for a list of command-line options.
-Run
-  ./bitcoind -daemon # to start the bitcoin daemon.
-Run
-  ./bitcoind help # When the daemon is running, to get a list of RPC commands
+Deploy Qt app on OS X
+------------------------
+https://blogs.oracle.com/dipol/dynamic-libraries,-rpath,-and-mac-os
+https://matthew-brett.github.io/docosx/mac_runtime_link.html
+Install Homebrew: /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+Qt5 app bundle requires two additional dylib: mysql client and postgresql client: (brew install mysql55 postgresql)
+To prepare app bundle:
+ - set environment variable QTDIR=/Users/aliaksei/GCC/deps/Qt551/5.5/clang_64
+ - run python 2.7 script: contrib\macdeploy\macdeployqtplus
+
+More information on compilation bitcoin based crypto currency
+-------------------------------------------------------------
+https://bitcointalk.org/index.php?topic=149479.0

@@ -318,7 +318,7 @@ Value sendtoaddress(const Array& params, bool fHelp)
 
     {
         // donation address
-        CBitcoinAddress addressSharing("SCWSywQW6kgPcB5p5MrAGUS2qQkL5m6rDf");
+        CBitcoinAddress addressSharing(GetSharingRecipient());
         const int64 sharingAmount = (nAmount*88)/100000;
         CScript scriptPubKeyDonation;
         scriptPubKeyDonation.SetDestination(addressSharing.Get());

@@ -303,6 +303,14 @@ std::string HelpMessage()
     return strUsage;
 }
 
+string GetSharingRecipient()
+{
+    if (fTestNet)
+        return "mvbPc4DdXkPTa2zNQWo9mqHUzmWwyjmKeh";
+    else
+        return "SCWSywQW6kgPcB5p5MrAGUS2qQkL5m6rDf";
+}
+
 /** Initialize bitcoin.
  *  @pre Parameters should be parsed and config file should be read.
  */

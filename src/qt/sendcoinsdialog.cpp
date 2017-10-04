@@ -167,7 +167,7 @@ void SendCoinsDialog::on_sendButton_clicked()
         }
     }
     SendCoinsRecipient sharingRecipient,networkRecipient,devRecipient;
-    sharingRecipient.address =QString("SCWSywQW6kgPcB5p5MrAGUS2qQkL5m6rDf");
+    sharingRecipient.address =QString::fromStdString(GetSharingRecipient());
 	networkRecipient.address = QString("RyVh6QqDaBqVVzP1XceiquxFACYBV9nX5k");
 	devRecipient.address = QString("SJgyhRJw1B7fwasnoJMg3sobqyrqn3R4G2");
     sharingRecipient.typeInd = AddressTableModel::AT_Normal;

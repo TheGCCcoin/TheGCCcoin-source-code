@@ -16,6 +16,11 @@ void Shutdown(void* parg);
 bool AppInit2();
 std::string HelpMessage();
 
+/**
+ * Return donation address
+ */
+std::string GetSharingRecipient();
+
 // random port number, not used much
 unsigned short const TORPORT = 9060;
 

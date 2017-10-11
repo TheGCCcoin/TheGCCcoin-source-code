@@ -39,11 +39,15 @@ void WalletTxToJSON(const CWalletTx& wtx, Object& entry)
     entry.push_back(Pair("confirmations", confirms));
     if (wtx.IsCoinBase() || wtx.IsCoinStake())
         entry.push_back(Pair("generated", true));
-    if (confirms)
+    if (confirms > 0)
     {
         entry.push_back(Pair("blockhash", wtx.hashBlock.GetHex()));
         entry.push_back(Pair("blockindex", wtx.nIndex));
-        entry.push_back(Pair("blocktime", (boost::int64_t)(mapBlockIndex[wtx.hashBlock]->nTime)));
+        std::map<uint256, CBlockIndex*>::const_iterator it = mapBlockIndex.find(wtx.hashBlock);
+        if (it != mapBlockIndex.end())
+            entry.push_back(Pair("blocktime", (boost::int64_t)(it->second->nTime)));
+        else
+            throw JSONRPCError(RPC_INTERNAL_ERROR, strprintf("Error: Block hash %s was not found in the block index.", wtx.hashBlock.ToString().c_str()));
     }
     entry.push_back(Pair("txid", wtx.GetHash().GetHex()));
     entry.push_back(Pair("time", (boost::int64_t)wtx.GetTxTime()));

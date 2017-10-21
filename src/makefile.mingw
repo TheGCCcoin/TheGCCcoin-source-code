@@ -91,7 +91,7 @@ endif
 
 LIBS += -lkernel32 -luser32 -lgdi32 -lcomdlg32 -lwinspool \
         -lwinmm -lshell32 -lcomctl32 -lole32 -loleaut32 -luuid \
-        -lrpcrt4 -ladvapi32 -lws2_32 -lmswsock -lshlwapi
+        -lrpcrt4 -ladvapi32 -lws2_32 -lmswsock -lshlwapi -lcrypt32
 
 # TODO: make the mingw builds smarter about dependencies, like the linux/osx builds are
 HEADERS = $(wildcard *.h)
@@ -273,6 +273,6 @@ clean:
 	-rm -f TheGCCcoind.exe test_TheGCCcoin.exe
 	-rm -f obj\*
 	-rm -f obj-test\*
-	cd leveldb; make clean
+#	cd leveldb; make clean
 
 FORCE:

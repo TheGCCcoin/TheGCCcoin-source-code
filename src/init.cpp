@@ -571,15 +571,14 @@ bool AppInit2()
             return InitError(_("Failed to listen on any port."));
     }
 
-
     // start up tor
-    if (!(mapArgs.count("-tor") && mapArgs["-tor"] != "0")) {
-      if (!NewThread(StartTor, NULL))
-        InitError(_("Error: could not start tor"));
+    if (!(mapArgs.count("-tor") && mapArgs["-tor"] != "0"))
+    {
+        if (!NewThread(StartTor, NULL))
+            InitError(_("Error: could not start tor"));
+        else
+            wait_initialized();
     }
-
-    wait_initialized();
-
 
     if (mapArgs.count("-externalip"))
     {

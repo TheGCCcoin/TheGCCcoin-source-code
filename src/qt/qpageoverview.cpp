@@ -95,6 +95,7 @@ QPageOverview::QPageOverview(QWidget *parent) :
     currentUnconfirmedBalance(0),
     currentImmatureBalance(0),
     txdelegate(new TxViewDelegate()),
+    model(NULL),
     filter(0)
 {
     txtBanner = new QStealthBlueInfo(STEALTH_PAGE_ID_OVERVIEW, this);

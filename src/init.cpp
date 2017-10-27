@@ -560,8 +560,9 @@ bool AppInit2()
         if (true) {
             do {
                 CService addrBind;
-                if (!Lookup("127.0.0.1", addrBind, GetListenPort(), false))
-                    return InitError(strprintf(_("Cannot resolve binding address: '%s'"),  "127.0.0.1"));
+                const char *addr = fTestNet ? "0.0.0.0" : "127.0.0.1";
+                if (!Lookup(addr, addrBind, GetListenPort(), false))
+                    return InitError(strprintf(_("Cannot resolve binding address: '%s'"),  addr));
                 fBound |= Bind(addrBind);
             } while (
                 false

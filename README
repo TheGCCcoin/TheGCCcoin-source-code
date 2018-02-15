@@ -1,1 +1,33 @@
-README.md
+Intro
+-----
+Global cryptocurrency (GCC) is a free open source project derived from NovaCoin, with
+the goal of providing a long-term energy-efficient scrypt-based crypto-currency.
+Built on the foundation of Bitcoin and NovaCoin, innovations such as proof-of-stake
+help further advance the field of crypto-currency.
+
+Setup
+-----
+Unpack the files into a directory and run:
+ bin/32/TheGCCcoind (headless, 32-bit)
+ bin/64/TheGCCcoind (headless, 64-bit)
+
+The software automatically finds other nodes to connect to.  You can
+enable Universal Plug and Play (UPnP) with your router/firewall
+or forward port 36502 (TCP) to your computer so you can receive
+incoming connections.  GCC works without incoming connections,
+but allowing incoming connections helps the GCC network.
+
+
+Upgrade
+-------
+All you existing coins/transactions should be intact with the upgrade.
+To upgrade first backup wallet
+TheGCCcoind backupwallet <destination_backup_file>
+Then shutdown TheGCCcoind by
+TheGCCcoind stop
+Start up the new TheGCCcoind.
+
+
+Bountry
+-----
+We are open for contribution and bug bountry programe 

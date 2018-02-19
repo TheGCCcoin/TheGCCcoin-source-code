@@ -44,8 +44,3 @@ Then shutdown TheGCCcoind by
 TheGCCcoind stop
 Start up the new TheGCCcoind.
 
-
-See the documentation/wiki at the TheGCCcoin site:
-  http://stealth-coin.com/
-for help and more information.
-

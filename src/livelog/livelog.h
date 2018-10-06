@@ -48,7 +48,8 @@ namespace acpul {
 
     class LiveLogBasic {
     protected:
-        std::wofstream _fs;
+        std::wofstream *__fs;
+        std::wofstream &_fs;
         std::wstring _path;
         std::vector<std::wstring> _stack;
 //        bool _empty;
@@ -57,7 +58,8 @@ namespace acpul {
         LiveLogBasic(const char *filename)
         : _path(L"")
 //        , _empty(false)
-        , _fs(filename)
+        , __fs(new std::wofstream(filename))
+        , _fs(*__fs)
         {}
 
         ~LiveLogBasic()
@@ -302,7 +304,7 @@ namespace acpul {
 
             // clear hack
             _fs.close();
-            _fs = std::wofstream(_filename);
+            _fs = std::wofstream(_filename.c_str());
 
             flushNode(&_tree);
 

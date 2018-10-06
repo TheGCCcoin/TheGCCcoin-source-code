@@ -48,8 +48,7 @@ namespace acpul {
 
     class LiveLogBasic {
     protected:
-        std::wofstream *__fs;
-        std::wofstream &_fs;
+        std::wofstream *_fs;
         std::wstring _path;
         std::vector<std::wstring> _stack;
 //        bool _empty;
@@ -58,8 +57,7 @@ namespace acpul {
         LiveLogBasic(const char *filename)
         : _path(L"")
 //        , _empty(false)
-        , __fs(new std::wofstream(filename))
-        , _fs(*__fs)
+        , _fs(new std::wofstream(filename))
         {}
 
         ~LiveLogBasic()
@@ -69,7 +67,7 @@ namespace acpul {
         {
             _stack.push_back(_path);
             _path = path;
-            _fs << L"# " << _path << L"[\n";
+            *_fs << L"# " << _path << L"[\n";
 //            _empty = true;
         }
 
@@ -79,7 +77,7 @@ namespace acpul {
 //                _fs << L"# " << _path << L"]\n";
 //            }
 //            _empty = true;
-            _fs << L"# " << _path << L"]\n";
+            *_fs << L"# " << _path << L"]\n";
             _path = L"";
 
             if (_stack.size() > 0) {
@@ -99,13 +97,13 @@ namespace acpul {
 //            printf("%i\n", n);
 //            printf("%i %S\n", n, s.c_str());
 
-            _fs << s << L"\n";
-            _fs.flush();
+            *_fs << s << L"\n";
+            _fs->flush();
         }
 
         void flush()
         {
-            _fs.flush();
+            _fs->flush();
         }
     };
 
@@ -303,12 +301,14 @@ namespace acpul {
                 return;
 
             // clear hack
-            _fs.close();
-            _fs = std::wofstream(_filename.c_str());
+            _fs->close();
+
+            delete _fs;
+            _fs = new std::wofstream(_filename.c_str());
 
             flushNode(&_tree);
 
-            _fs.flush();
+            _fs->flush();
 
             _modified = false;
         }

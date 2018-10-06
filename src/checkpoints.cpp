@@ -11,6 +11,8 @@
 #include "main.h"
 #include "uint256.h"
 
+// Checkpoints [
+
 namespace Checkpoints
 {
     typedef std::map<int, uint256> MapCheckpoints;
@@ -364,6 +366,8 @@ namespace Checkpoints
         return (pindexSync->GetBlockTime() + nSeconds < GetAdjustedTime());
     }
 }
+
+// Checkpoints ]
 
 // stealth: sync-checkpoint master key (520 bits, 130 hex)
 // this is the public key for a secp256k1 private key

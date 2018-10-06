@@ -55,8 +55,10 @@ static const int64 MAX_STEALTH_PROOF_OF_STAKE_V7 = 2 * CENT; // 2%
 
 // too many problems with PoW+PoS and big hashes
 // static const unsigned int CUTOFF_POW_BLOCK = 20421;
+//static const int CUTOFF_POW_BLOCK = 6222800;
 static const int CUTOFF_POW_BLOCK = 6222800;
-static const unsigned int CUTOFF_POW_TIME = 1905125188;
+static const int CUTOFF_POW_BLOCK_TESTNET = 100; // todo: rename POW_LAST_BLOCK
+static const unsigned int CUTOFF_POW_TIME = 1905125188; // todo: review
 // Thu Oct  9 00:00:00 2014 MST
 static const unsigned int STEALTH_ADDR_KICK_IN = 1912834400;
 
@@ -66,7 +68,10 @@ static const unsigned int POS_REWARDS_SWITCH_TIME4 = 1554854400; // 10.04.2019 -
 static const unsigned int POS_REWARDS_SWITCH_TIME5 = 1586476800; // 10.04-2020 - 14%
 static const unsigned int POS_REWARDS_SWITCH_TIME6 = 1618012800; // 10.04-2021 - 12%
 static const unsigned int POS_REWARDS_SWITCH_TIME7 = 1649548800; // 10.04.2022 - 2%
-	
+
+static const unsigned int POS_FIX_MINT_A_BLOCK = 10000000;
+static const unsigned int POS_FIX_MINT_A_BLOCK_TESTNET = 100;
+
 
 static const int64 MIN_TXOUT_AMOUNT = MIN_TX_FEE/100;
 
@@ -83,8 +88,14 @@ static const int fHaveUPnP = false;
 
 static const uint256 hashGenesisBlockOfficial(
    "0x000000934651dfcee062c39d32efea712b08a698624e28ffa53ab3a92a07747e");
+
+// G.1 GENESIS DEBUG FIX == main!!! [
+
 static const uint256 hashGenesisBlockTestNet (
-   "0xff6964444e41f1b310af51b7d044f0366023385127141f23b0854ec4db68a57f");
+        "0x000000934651dfcee062c39d32efea712b08a698624e28ffa53ab3a92a07747e");
+//   "0xff6964444e41f1b310af51b7d044f0366023385127141f23b0854ec4db68a57f");
+
+// G.1 GENESIS DEBUG FIX == main!!! ]
 
 // static const int64 nMaxClockDrift = 2 * 60 * 60;        // two hours -old unused
 
@@ -924,7 +935,7 @@ public:
 
 
 
-
+// CBlock [
 
 /** Nodes collect new transactions into a block, hash them into a hash tree,
  * and scan through nonce values to make the block's hash satisfy proof-of-work
@@ -1132,6 +1143,8 @@ public:
         return true;
     }
 
+    // ReadFromDisk [
+
     bool ReadFromDisk(unsigned int nFile, unsigned int nBlockPos, bool fReadTransactions=true)
     {
         SetNull();
@@ -1158,6 +1171,7 @@ public:
         return true;
     }
 
+    // ReadFromDisk ]
 
 
     void print() const
@@ -1198,6 +1212,7 @@ private:
     bool SetBestChainInner(CTxDB& txdb, CBlockIndex *pindexNew);
 };
 
+// CBlock ]
 
 
 

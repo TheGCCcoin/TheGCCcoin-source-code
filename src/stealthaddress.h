@@ -13,6 +13,7 @@
 #include <vector>
 #include <inttypes.h>
 
+typedef unsigned char byte;
 
 typedef std::vector<uint8_t> data_chunk;
 

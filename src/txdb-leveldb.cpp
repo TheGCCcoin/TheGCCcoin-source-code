@@ -20,6 +20,8 @@
 #include "util.h"
 #include "main.h"
 
+#include "livelog/livelog.h"
+
 using namespace std;
 using namespace boost;
 
@@ -297,6 +299,8 @@ bool CTxDB::WriteCheckpointPubKey(const string& strPubKey)
     return Write(string("strCheckpointPubKey"), strPubKey);
 }
 
+// InsertBlockIndex :> pindexNew [
+
 static CBlockIndex *InsertBlockIndex(uint256 hash)
 {
     if (hash == 0)
@@ -317,6 +321,9 @@ static CBlockIndex *InsertBlockIndex(uint256 hash)
     return pindexNew;
 }
 
+// InsertBlockIndex :> pindexNew ]
+// LoadBlockIndex [
+
 bool CTxDB::LoadBlockIndex()
 {
     if (mapBlockIndex.size() > 0) {
@@ -324,6 +331,9 @@ bool CTxDB::LoadBlockIndex()
         // from BDB.
         return true;
     }
+
+    // Read from disk mapBlockIndex [
+
     // The block index is an in-memory structure that maps hashes to on-disk
     // locations where the contents of the block can be found. Here, we scan it
     // out of the DB and into mapBlockIndex.
@@ -374,10 +384,14 @@ bool CTxDB::LoadBlockIndex()
         if (pindexGenesisBlock == NULL && blockHash == (!fTestNet ? hashGenesisBlock : hashGenesisBlockTestNet))
             pindexGenesisBlock = pindexNew;
 
+        // q.1 CheckIndex always true ? [
+
         if (!pindexNew->CheckIndex()) {
             delete iterator;
             return error("LoadBlockIndex() : CheckIndex failed at %d", pindexNew->nHeight);
         }
+
+        // q.1 CheckIndex always true ? ]
 
         // NovaCoin: build setStakeSeen
         if (pindexNew->IsProofOfStake())
@@ -387,10 +401,15 @@ bool CTxDB::LoadBlockIndex()
     }
     delete iterator;
 
+    // Read from disk mapBlockIndex ]
+
     if (fRequestShutdown)
         return true;
 
     // Calculate nChainTrust
+
+    // Sort by height [
+
     vector<pair<int, CBlockIndex*> > vSortedByHeight;
     vSortedByHeight.reserve(mapBlockIndex.size());
     BOOST_FOREACH(const PAIRTYPE(uint256, CBlockIndex*)& item, mapBlockIndex)
@@ -399,6 +418,10 @@ bool CTxDB::LoadBlockIndex()
         vSortedByHeight.push_back(make_pair(pindex->nHeight, pindex));
     }
     sort(vSortedByHeight.begin(), vSortedByHeight.end());
+
+    // Sort by height ]
+    // Calculate nChainTrust & verify nStakeModifierChecksum checkpoints [
+
     BOOST_FOREACH(const PAIRTYPE(int, CBlockIndex*)& item, vSortedByHeight)
     {
         CBlockIndex* pindex = item.second;
@@ -408,6 +431,9 @@ bool CTxDB::LoadBlockIndex()
         if (!CheckStakeModifierCheckpoints(pindex->nHeight, pindex->nStakeModifierChecksum))
             return error("CTxDB::LoadBlockIndex() : Failed stake modifier checkpoint height=%d, modifier=0x%016"PRI64x, pindex->nHeight, pindex->nStakeModifier);
     }
+
+    // Calculate nChainTrust & verify nStakeModifierChecksum checkpoints ]
+    // Load hashBestChain pindexBest nBestHeight bnBestChainTrust [
 
     // Load hashBestChain pointer to end of best chain
     if (!ReadHashBestChain(hashBestChain))
@@ -425,6 +451,10 @@ bool CTxDB::LoadBlockIndex()
     printf("LoadBlockIndex(): hashBestChain=%s  height=%d  trust=%s  date=%s\n",
       hashBestChain.ToString().substr(0,20).c_str(), nBestHeight, CBigNum(bnBestChainTrust).ToString().c_str(),
       DateTimeStrFormat("%x %H:%M:%S", pindexBest->GetBlockTime()).c_str());
+
+    llogLog(L"LoadBlockIndex/pindexBest", L"pindexBest ", *pindexBest);
+
+    // Load hashBestChain pindexBest nBestHeight bnBestChainTrust ]
 
     // NovaCoin: load hashSyncCheckpoint
     if (!ReadSyncCheckpoint(Checkpoints::hashSyncCheckpoint))
@@ -459,6 +489,9 @@ bool CTxDB::LoadBlockIndex()
             printf("LoadBlockIndex() : *** found bad block at %d, hash=%s\n", pindex->nHeight, pindex->GetBlockHash().ToString().c_str());
             pindexFork = pindex->pprev;
         }
+
+        // check level 2 [
+
         // check level 2: verify transaction index validity
         if (nCheckLevel>1)
         {
@@ -549,6 +582,8 @@ bool CTxDB::LoadBlockIndex()
                 }
             }
         }
+
+        // check level 2 ]
     }
     if (pindexFork && !fRequestShutdown)
     {
@@ -563,3 +598,5 @@ bool CTxDB::LoadBlockIndex()
 
     return true;
 }
+
+// LoadBlockIndex ]

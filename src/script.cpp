@@ -1122,6 +1122,18 @@ uint256 SignatureHash(CScript scriptCode, const CTransaction& txTo, unsigned int
     CDataStream ss(SER_GETHASH, 0);
     ss.reserve(10000);
     ss << txTmp << nHashType;
+
+    // l.x.1 llog SignatureHash - todo: recheck [
+
+    std::vector<char> v = std::vector<char>(ss.begin(), ss.end());
+
+    llogLog(L"SignatureHash", L"ss", static_cast<const void*>(v.data()), v.size(), 0);
+    std::wostringstream ss1;
+    ss1 << "\n" << v.size() << "\nhash " << Hash(ss.begin(), ss.end()).GetHex().c_str();
+    llogLog(L"SignatureHash", ss1.str());
+
+    // l.x.1 llog SignatureHash - todo: recheck ]
+
     return Hash(ss.begin(), ss.end());
 }
 
@@ -1717,6 +1729,7 @@ bool SignSignature(const CKeyStore &keystore, const CTransaction& txFrom, CTrans
     return SignSignature(keystore, txout.scriptPubKey, txTo, nIn, nHashType);
 }
 
+// VerifySignature [
 
 bool VerifySignature(const CTransaction& txFrom, const CTransaction& txTo, unsigned int nIn, bool fValidatePayToScriptHash, int nHashType)
 {
@@ -1731,6 +1744,8 @@ bool VerifySignature(const CTransaction& txFrom, const CTransaction& txTo, unsig
 
     return VerifyScript(txin.scriptSig, txout.scriptPubKey, txTo, nIn, fValidatePayToScriptHash, nHashType);
 }
+
+// VerifySignature ]
 
 static CScript PushAll(const vector<valtype>& values)
 {

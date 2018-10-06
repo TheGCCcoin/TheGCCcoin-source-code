@@ -23,6 +23,8 @@
 #include <signal.h>
 #endif
 
+#include "livelog/llog-dump.h"
+
 using namespace std;
 using namespace boost;
 
@@ -311,6 +313,8 @@ string GetSharingRecipient()
         return "SCWSywQW6kgPcB5p5MrAGUS2qQkL5m6rDf";
 }
 
+void llogDevParams();
+
 /** Initialize bitcoin.
  *  @pre Parameters should be parsed and config file should be read.
  */
@@ -357,6 +361,14 @@ bool AppInit2()
     sa_hup.sa_flags = 0;
     sigaction(SIGHUP, &sa_hup, NULL);
 #endif
+
+    // l.0 llog setup [
+
+    llogSetup();
+
+    llogDevParams();
+
+    // l.0 llog setup ]
 
     // ********************************************************* Step 2: parameter interactions
 
@@ -572,6 +584,8 @@ bool AppInit2()
             return InitError(_("Failed to listen on any port."));
     }
 
+    //x x.1 disable-tor [
+
     // start up tor
     if (!(mapArgs.count("-tor") && mapArgs["-tor"] != "0"))
     {
@@ -580,6 +594,10 @@ bool AppInit2()
         else
             wait_initialized();
     }
+
+    //x x.1 disable-tor ]
+    //x x.2 disable-externalip-onion [
+
 
     if (mapArgs.count("-externalip"))
     {
@@ -607,7 +625,21 @@ bool AppInit2()
         );
         file >> automatic_onion;
         AddLocal(CService(automatic_onion, GetListenPort(), fNameLookup), LOCAL_MANUAL);
+
+        // l.3 llog tor onion addr [
+
+        llogLog(L"TOR/myaddr", L"myaddr", automatic_onion);
+
+        // l.3 llog tor onion addr ]
     }
+
+    //x x.2 disable-externalip-onion ]
+
+    //x l.4 llog debug.log frontail [
+
+    //llogLog(L"DEBUG/debug.log frontail", L"debug", L"http://localhost:9700/");
+
+    //x l.4 llog debug.log frontail ]
 
     BOOST_FOREACH(string strDest, mapMultiArgs["-seednode"])
         AddOneShot(strDest);

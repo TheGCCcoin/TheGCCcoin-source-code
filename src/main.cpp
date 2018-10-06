@@ -2,6 +2,7 @@
 // Copyright (c) 2009-2012 The Bitcoin developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+// @ [
 
 #include "alert.h"
 #include "checkpoints.h"
@@ -18,8 +19,14 @@
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 
+#include "livelog/llog-dump.h"
+
+
 using namespace std;
 using namespace boost;
+
+// @ ]
+// vars [
 
 //
 // Global state
@@ -83,6 +90,159 @@ int64 nHPSTimerStart;
 // Settings
 int64 nTransactionFee = MIN_TX_FEE;
 int64 nReserveBalance = 0;
+
+// vars ]
+// dev util [
+
+// versions: 2.2.3.2
+// version: 2.3d
+
+// args:
+
+// --devverison22=false // old version 2.2.3.2
+// --devverison23=true // new version 2.3
+// --pos-subsidy-per-year=8 //8%
+// --pos-mint-a-blockheight
+
+// verisons [
+
+bool isVersionDev_2_2()
+{
+    bool v = GetArg("devverison22", false);
+    return v;
+}
+
+bool isVersionDev_2_3()
+{
+    if (isVersionDev_2_2())
+        return false;
+    bool v = GetArg("devverison23", true);
+    return v;
+}
+
+// verisons ]
+// proto [
+
+bool isProto7Enable()
+{
+    return isVersionDev_2_3();
+}
+
+// proto ]
+// pos fix mint a [
+
+bool isPosFixMintAEnable()
+{
+    return isVersionDev_2_3();
+}
+
+int64 posFixMintAHeight()
+{
+    return GetArg("pos-mint-a-blockheight", 0);
+}
+
+bool isPosFixMintA(int height)
+{
+    if (!isPosFixMintAEnable())
+        return false;
+
+    int64 heightMax = fTestNet ? POS_FIX_MINT_A_BLOCK_TESTNET : POS_FIX_MINT_A_BLOCK;
+
+    int64 h = posFixMintAHeight();
+    heightMax = h ? h : heightMax;
+
+    return height > heightMax;
+}
+
+int64 posFixMintASubsidyPerYear()
+{
+    return GetArg("pos-subsidy-per-year", 8); // default 8%
+}
+
+int64 posFixMintASubsidy(int64 coinAge)
+{
+    int64 percentPerYear = posFixMintASubsidyPerYear();
+    int64 subsidy = coinAge * (percentPerYear * CENT) * 33 / (365 * 33);
+
+    return subsidy;
+}
+
+// pos fix mint a ]
+// pow [
+
+int64 powEnabledHeight()
+{
+    return GetArg("pow-enabled-height", 0);
+}
+
+bool isPowEnabled(int height)
+{
+    int heightMax = fTestNet ? CUTOFF_POW_BLOCK_TESTNET : CUTOFF_POW_BLOCK;
+
+    int64 h = powEnabledHeight();
+    heightMax = h ? h : heightMax;
+
+    return height > heightMax;
+}
+
+// pow ]
+// llog params [
+
+void llogDevParams()
+{
+    llogLog(L"dev/args", L"--devverison22", GetArg("devverison22", -1));
+    llogLog(L"dev/args", L"--devverison23", GetArg("devverison23", -1));
+    llogLog(L"dev/args", L"--pos-mint-a-blockheight", GetArg("pos-mint-a-blockheight", -1));
+    llogLog(L"dev/args", L"--pos-subsidy-per-year", GetArg("pos-subsidy-per-year", -1));
+    llogLog(L"dev/args", L"--pow-enabled-height", GetArg("pow-enabled-height", -1));
+
+    llogLog(L"dev/version", L"isVersionDev_2_2", isVersionDev_2_2(), true);
+    llogLog(L"dev/version", L"isVersionDev_2_3", isVersionDev_2_3());
+    llogLog(L"dev/version", L"isProto7Enable", isProto7Enable());
+    llogLog(L"dev/pos", L"isPosFixMintAEnable", isPosFixMintAEnable());
+    llogLog(L"dev/pos", L"isPosFixMintA 0", isPosFixMintA(0));
+    llogLog(L"dev/pos", L"isPosFixMintA 100", isPosFixMintA(100));
+    llogLog(L"dev/pos", L"isPosFixMintA 10000", isPosFixMintA(10000));
+    llogLog(L"dev/pos", L"isPosFixMintA 1000000", isPosFixMintA(1000000));
+    llogLog(L"dev/pos", L"isPosFixMintA 100000000", isPosFixMintA(100000000));
+
+    llogLog(L"dev/pos", L"\nposFixMintAHeight", posFixMintAHeight());
+
+    llogLog(L"dev/pos", L"posFixMintASubsidyPerYear", posFixMintASubsidyPerYear());
+    llogLog(L"dev/pos", L"\nposFixMintASubsidy 0", posFixMintASubsidy(0));
+    llogLog(L"dev/pos", L"posFixMintASubsidy 1 (day)", posFixMintASubsidy(1));
+    llogLog(L"dev/pos", L"posFixMintASubsidy 7 (week)", posFixMintASubsidy(7));
+    llogLog(L"dev/pos", L"posFixMintASubsidy 30 (month)", posFixMintASubsidy(30));
+    llogLog(L"dev/pos", L"posFixMintASubsidy 3*30 (3 months)", posFixMintASubsidy(3*30));
+    llogLog(L"dev/pos", L"posFixMintASubsidy 6*30 (6 months)", posFixMintASubsidy(6*30));
+    llogLog(L"dev/pos", L"posFixMintASubsidy 12*30 (year)", posFixMintASubsidy(12*30));
+
+    llogLog(L"dev/pow", L"powEnabledHeight", powEnabledHeight());
+    llogLog(L"dev/pow", L"isPowEnabled 0", isPowEnabled(0));
+    llogLog(L"dev/pow", L"isPowEnabled 1", isPowEnabled(1));
+    llogLog(L"dev/pow", L"isPowEnabled 100", isPowEnabled(100));
+    llogLog(L"dev/pow", L"isPowEnabled 10000", isPowEnabled(10000));
+    llogLog(L"dev/pow", L"isPowEnabled 1000000", isPowEnabled(1000000));
+    llogLog(L"dev/pow", L"isPowEnabled 100000000", isPowEnabled(100000000));
+
+    llogLog(L"dev/pow", L"reward 0 height 0 fee", GetProofOfWorkReward(0, 0, 0));
+    llogLog(L"dev/pow", L"reward 1 height 0 fee", GetProofOfWorkReward(1, 0, 0));
+    llogLog(L"dev/pow", L"reward 10 height 0 fee", GetProofOfWorkReward(10, 0, 0));
+    llogLog(L"dev/pow", L"reward 260 height 0 fee", GetProofOfWorkReward(260, 0, 0));
+    llogLog(L"dev/pow", L"reward 2050 height 0 fee", GetProofOfWorkReward(2050, 0, 0));
+    llogLog(L"dev/pow", L"reward 100000 height 0 fee", GetProofOfWorkReward(100000, 0, 0));
+
+
+    llogLog(L"dev/vars", L"block height: POS_FIX_MINT_A_BLOCK_TESTNET", POS_FIX_MINT_A_BLOCK_TESTNET);
+    llogLog(L"dev/vars", L"block height: POS_FIX_MINT_A_BLOCK", POS_FIX_MINT_A_BLOCK);
+    llogLog(L"dev/vars", L"block height: CUTOFF_POW_BLOCK_TESTNET", CUTOFF_POW_BLOCK_TESTNET);
+    llogLog(L"dev/vars", L"block height: CUTOFF_POW_BLOCK", CUTOFF_POW_BLOCK);
+    llogLog(L"dev/vars", L"CENT", CENT);
+}
+
+// llog params ]
+// dev util ]
+// setpwalletRegistered [
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -188,6 +348,8 @@ void ResendWalletTransactions()
 }
 
 
+// setpwalletRegistered ]
+// mapOrphanTransactions [
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -260,7 +422,8 @@ unsigned int LimitOrphanTxSize(unsigned int nMaxOrphans)
     return nEvicted;
 }
 
-
+// mapOrphanTransactions ]
+// CTransaction [
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -413,7 +576,6 @@ CTransaction::GetLegacySigOpCount() const
     return nSigOps;
 }
 
-
 int CMerkleTx::SetMerkleBranch(const CBlock* pblock)
 {
     if (fClient)
@@ -563,6 +725,8 @@ int64 CTransaction::GetMinFee(unsigned int nBlockSize, bool fAllowFree,
     return nMinFee;
 }
 
+// CTxMemPool [
+// accept [
 
 bool CTxMemPool::accept(CTxDB& txdb, CTransaction &tx,
                         bool fCheckInputs, bool* pfMissingInputs)
@@ -711,10 +875,16 @@ bool CTxMemPool::accept(CTxDB& txdb, CTransaction &tx,
     return true;
 }
 
+// accept ]
+// CTxMemPool ]
+
 bool CTransaction::AcceptToMemoryPool(CTxDB& txdb, bool fCheckInputs, bool* pfMissingInputs)
 {
     return mempool.accept(txdb, *this, fCheckInputs, pfMissingInputs);
 }
+
+// CTransaction ]
+// CTxMemPool [
 
 bool CTxMemPool::addUnchecked(const uint256& hash, CTransaction &tx)
 {
@@ -789,7 +959,8 @@ void CTxMemPool::queryHashes(std::vector<uint256>& vtxid)
         vtxid.push_back((*mi).first);
 }
 
-
+// CTxMemPool ]
+// CMerkleTx [
 
 
 int CMerkleTx::GetDepthInMainChainINTERNAL(CBlockIndex* &pindexRet) const
@@ -853,7 +1024,8 @@ bool CMerkleTx::AcceptToMemoryPool()
     return AcceptToMemoryPool(txdb);
 }
 
-
+// CMerkleTx ]
+// CWalletTx [
 
 bool CWalletTx::AcceptWalletTransaction(CTxDB& txdb, bool fCheckInputs)
 {
@@ -882,6 +1054,8 @@ bool CWalletTx::AcceptWalletTransaction()
     return AcceptWalletTransaction(txdb);
 }
 
+// CWalletTx ]
+// CTxIndex [
 
 int CTxIndex::GetDepthInMainChain() const
 {
@@ -899,6 +1073,8 @@ int CTxIndex::GetDepthInMainChain() const
     return 1 + nBestHeight - pindex->nHeight;
 }
 
+// CTxIndex ]
+// GetTransaction [
 // Return transaction in tx, and if it was found inside a block, its hash is placed in hashBlock
 bool GetTransaction(const uint256 &hash, CTransaction &tx, uint256 &hashBlock)
 {
@@ -924,11 +1100,14 @@ bool GetTransaction(const uint256 &hash, CTransaction &tx, uint256 &hashBlock)
     return false;
 }
 
+// GetTransaction ]
 
 //////////////////////////////////////////////////////////////////////////////
 //
 // CBlock and CBlockIndex
 //
+
+// FindBlockByHeight [
 
 static CBlockIndex* pblockindexFBBHLast;
 CBlockIndex* FindBlockByHeight(int nHeight)
@@ -948,6 +1127,8 @@ CBlockIndex* FindBlockByHeight(int nHeight)
     return pblockindex;
 }
 
+// FindBlockByHeight ]
+// ReadFromDisk [
 
 bool CBlock::ReadFromDisk(const CBlockIndex* pindex, bool fReadTransactions)
 {
@@ -963,6 +1144,8 @@ bool CBlock::ReadFromDisk(const CBlockIndex* pindex, bool fReadTransactions)
     return true;
 }
 
+// ReadFromDisk ]
+// GetOrphanRoot [
 
 uint256 static GetOrphanRoot(const CBlock* pblock)
 {
@@ -972,6 +1155,8 @@ uint256 static GetOrphanRoot(const CBlock* pblock)
     return pblock->GetHash();
 }
 
+// GetOrphanRoot ]
+// WantedByOrphan [
 
 // ppcoin: find block wanted by given orphan block
 uint256 WantedByOrphan(const CBlock* pblockOrphan)
@@ -982,6 +1167,8 @@ uint256 WantedByOrphan(const CBlock* pblockOrphan)
     return pblockOrphan->hashPrevBlock;
 }
 
+// WantedByOrphan ]
+// generateMTRandom [
 
 int generateMTRandom(unsigned int s, int range)
 {
@@ -990,7 +1177,11 @@ int generateMTRandom(unsigned int s, int range)
     return dist(gen);
 }
 
+// generateMTRandom ]
 
+// POW POS REWARD [
+
+// GetProofOfWorkReward [
 
 // miner's coin base reward based on nHeight
 int64 GetProofOfWorkReward(int nHeight, int64 nFees, uint256 prevHash)
@@ -1010,6 +1201,9 @@ int64 GetProofOfWorkReward(int nHeight, int64 nFees, uint256 prevHash)
 
     return nSubsidy + nFees;
 }
+
+// GetProofOfWorkReward ]
+// GetProofOfStakeReward [
 
 // miner's coin stake reward based on nBits and coin age spent (coin-days)
 // simple algorithm, not depend on the diff
@@ -1048,12 +1242,26 @@ int64 GetProofOfStakeReward(int64 nCoinAge, unsigned int nBits, unsigned int nTi
     else
         nSubsidy = nCoinAge * nRewardCoinYear / 365;
 
+    // pos: fix mint 8% [
+
+    if (isPosFixMintA(nHeight)) {
+//            nSubsidy = nCoinAge * (8 * CENT) * 33 / (365 * 33); // 8%
+        nSubsidy = posFixMintASubsidy(nCoinAge);
+    }
+
+    // pos: fix mint 8% ]
 
     if (fDebug && GetBoolArg("-printcreation"))
         printf("GetProofOfStakeReward(): create=%s nCoinAge=%"PRI64d" nBits=%d\n", FormatMoney(nSubsidy).c_str(), nCoinAge, nBits);
 
+
     return nSubsidy;
 }
+
+// GetProofOfStakeReward ]
+
+// POW POS REWARD ]
+// POS [
 
 unsigned int GetStakeMinAge(unsigned int nTime)
 {
@@ -1120,6 +1328,8 @@ unsigned int ComputeMinStake(unsigned int nBase, int64 nTime, unsigned int nBloc
     return ComputeMaxBits(GetProofOfStakeLimit(nTime), nBase, nTime);
 }
 
+// POS ]
+// GetLastBlockIndex [
 
 // ppcoin: find last block index up to pindex
 const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfStake)
@@ -1128,6 +1338,10 @@ const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfSta
         pindex = pindex->pprev;
     return pindex;
 }
+
+// GetLastBlockIndex ]
+// POW POS [
+// GetNextTargetRequired [
 
 unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfStake) 
 {
@@ -1184,6 +1398,9 @@ unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfS
     return bnNew.GetCompact();
 }
 
+// GetNextTargetRequired ]
+// CheckProofOfWork [
+
 bool CheckProofOfWork(uint256 hash, unsigned int nBits)
 {
     CBigNum bnTarget;
@@ -1200,11 +1417,21 @@ bool CheckProofOfWork(uint256 hash, unsigned int nBits)
     return true;
 }
 
+// CheckProofOfWork ]
+// POW POS ]
+
+// U1 [
+
+// GetNumBlocksOfPeers [
+
 // Return maximum amount of blocks that other nodes claim to have
 int GetNumBlocksOfPeers()
 {
     return std::max(cPeerBlockCounts.median(), Checkpoints::GetTotalBlocksEstimate());
 }
+
+// GetNumBlocksOfPeers ]
+// IsInitialBlockDownload [
 
 bool IsInitialBlockDownload()
 {
@@ -1220,6 +1447,9 @@ bool IsInitialBlockDownload()
     return (GetTime() - nLastUpdate < 10 &&
             pindexBest->GetBlockTime() < GetTime() - 24 * 60 * 60);
 }
+
+// IsInitialBlockDownload ]
+// InvalidChainFound [
 
 void static InvalidChainFound(CBlockIndex* pindexNew)
 {
@@ -1239,11 +1469,20 @@ void static InvalidChainFound(CBlockIndex* pindexNew)
       DateTimeStrFormat("%x %H:%M:%S", pindexBest->GetBlockTime()).c_str());
 }
 
+// InvalidChainFound ]
+// CBlock::UpdateTime [
+
 void CBlock::UpdateTime(const CBlockIndex* pindexPrev)
 {
     nTime = max(GetBlockTime(), GetAdjustedTime());
 }
 
+// CBlock::UpdateTime ]
+
+// U1 ]
+// CTransaction 1 [
+
+// DisconnectInputs [
 
 bool CTransaction::DisconnectInputs(CTxDB& txdb)
 {
@@ -1280,6 +1519,8 @@ bool CTransaction::DisconnectInputs(CTxDB& txdb)
     return true;
 }
 
+// DisconnectInputs ]
+// FetchInputs [
 
 bool CTransaction::FetchInputs(CTxDB& txdb, const map<uint256, CTxIndex>& mapTestPool,
                                bool fBlock, bool fMiner, MapPrevTx& inputsRet, bool& fInvalid)
@@ -1358,6 +1599,8 @@ bool CTransaction::FetchInputs(CTxDB& txdb, const map<uint256, CTxIndex>& mapTes
     return true;
 }
 
+// FetchInputs ]
+// GetOutputFor [
 
 const CTxOut& CTransaction::GetOutputFor(const CTxIn& input, const MapPrevTx& inputs) const
 {
@@ -1372,6 +1615,8 @@ const CTxOut& CTransaction::GetOutputFor(const CTxIn& input, const MapPrevTx& in
     return txPrev.vout[input.prevout.n];
 }
 
+// GetOutputFor ]
+// GetValueIn [
 
 int64 CTransaction::GetValueIn(const MapPrevTx& inputs) const
 {
@@ -1387,6 +1632,8 @@ int64 CTransaction::GetValueIn(const MapPrevTx& inputs) const
 
 }
 
+// GetValueIn ]
+// GetP2SHSigOpCount [
 
 unsigned int CTransaction::GetP2SHSigOpCount(const MapPrevTx& inputs) const
 {
@@ -1403,6 +1650,8 @@ unsigned int CTransaction::GetP2SHSigOpCount(const MapPrevTx& inputs) const
     return nSigOps;
 }
 
+// GetP2SHSigOpCount ]
+// ConnectInputs [
 
 bool CTransaction::ConnectInputs(CTxDB& txdb, MapPrevTx inputs,
                                  map<uint256, CTxIndex>& mapTestPool, const CDiskTxPos& posThisTx,
@@ -1458,6 +1707,8 @@ bool CTransaction::ConnectInputs(CTxDB& txdb, MapPrevTx inputs,
             if (!txindex.vSpent[prevout.n].IsNull())
                 return fMiner ? false : error("ConnectInputs() : %s prev tx already used at %s", GetHash().ToString().substr(0,10).c_str(), txindex.vSpent[prevout.n].ToString().c_str());
 
+            // VerifySignature -> !(fBlock && (nBestHeight < Checkpoints::GetTotalBlocksEstimate())) [
+
             // Skip ECDSA signature verification when connecting blocks (fBlock=true)
             // before the last blockchain checkpoint. This is safe because block merkle hashes are
             // still computed and checked, and any change will be caught at the next checkpoint.
@@ -1470,6 +1721,8 @@ bool CTransaction::ConnectInputs(CTxDB& txdb, MapPrevTx inputs,
                                GetHash().ToString().substr(0,10).c_str()));
                 }
             }
+
+            // VerifySignature -> !(fBlock && (nBestHeight < Checkpoints::GetTotalBlocksEstimate())) ]
 
             // Mark outpoints as spent
             txindex.vSpent[prevout.n] = posThisTx;
@@ -1513,6 +1766,8 @@ bool CTransaction::ConnectInputs(CTxDB& txdb, MapPrevTx inputs,
     return true;
 }
 
+// ConnectInputs ]
+// ClientConnectInputs [
 
 bool CTransaction::ClientConnectInputs()
 {
@@ -1560,6 +1815,12 @@ bool CTransaction::ClientConnectInputs()
     return true;
 }
 
+// ClientConnectInputs ]
+
+// CTransaction 1 ]
+// CBlock 1 [
+
+// DisconnectBlock [
 
 bool CBlock::DisconnectBlock(CTxDB& txdb, CBlockIndex* pindex)
 {
@@ -1584,6 +1845,9 @@ bool CBlock::DisconnectBlock(CTxDB& txdb, CBlockIndex* pindex)
 
     return true;
 }
+
+// DisconnectBlock ]
+// ConnectBlock [
 
 bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
 {
@@ -1667,6 +1931,19 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
             if (!tx.IsCoinStake())
                 nFees += nTxValueIn - nTxValueOut;
 
+            // O.1 llog ConnectInputs [
+/*
+            std::wostringstream ss;
+
+            ss << L"nHeight " << pindex->nHeight << "\n";
+            ss << pindex->ToString().c_str() << "\n";
+
+            llogLog(L"ConnectBlock-old/tx", L"", pindex->GetBlockHeader());
+            llogLog(L"ConnectBlock-old/tx", ss.str());
+*/
+            // O.1 llog ConnectInputs ]
+
+
             if (!tx.ConnectInputs(txdb, mapInputs, mapQueuedChanges, posThisTx, pindex, true, false, fStrictPayToScriptHash))
                 return false;
         }
@@ -1722,6 +1999,12 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
 
     return true;
 }
+
+// ConnectBlock ]
+
+// CBlock 1 ]
+
+// Reorganize [
 
 bool static Reorganize(CTxDB& txdb, CBlockIndex* pindexNew)
 {
@@ -1823,6 +2106,8 @@ bool static Reorganize(CTxDB& txdb, CBlockIndex* pindexNew)
     return true;
 }
 
+// Reorganize ]
+// SetBestChainInner [
 
 // Called from inside SetBestChain: attaches a block to the new best chain being built
 bool CBlock::SetBestChainInner(CTxDB& txdb, CBlockIndex *pindexNew)
@@ -1849,6 +2134,8 @@ bool CBlock::SetBestChainInner(CTxDB& txdb, CBlockIndex *pindexNew)
     return true;
 }
 
+// SetBestChainInner ]
+// SetBestChain [
 
 bool CBlock::SetBestChain(CTxDB& txdb, CBlockIndex* pindexNew)
 {
@@ -1966,6 +2253,12 @@ bool CBlock::SetBestChain(CTxDB& txdb, CBlockIndex* pindexNew)
     return true;
 }
 
+// SetBestChain ]
+
+// CTransaction 2 [
+
+// GetCoinAge [
+
 // ppcoin: total coin age spent in transaction, in the unit of coin-days.
 // Only those coins meeting minimum age requirement counts. As those
 // transactions not in main chain are not currently indexed so we
@@ -2016,6 +2309,13 @@ bool CTransaction::GetCoinAge(CTxDB& txdb, uint64& nCoinAge) const
     return true;
 }
 
+// GetCoinAge ]
+
+// CTransaction 2 ]
+// CBlock [
+
+// GetCoinAge [
+
 // ppcoin: total coin age spent in block, in the unit of coin-days.
 bool CBlock::GetCoinAge(uint64& nCoinAge) const
 {
@@ -2038,12 +2338,20 @@ bool CBlock::GetCoinAge(uint64& nCoinAge) const
     return true;
 }
 
+// GetCoinAge ]
+// AddToBlockIndex [
+
 bool CBlock::AddToBlockIndex(unsigned int nFile, unsigned int nBlockPos)
 {
+    // Check hash exists [
+
     // Check for duplicate
     uint256 hash = GetHash();
     if (mapBlockIndex.count(hash))
         return error("AddToBlockIndex() : %s already exists", hash.ToString().substr(0,20).c_str());
+
+    // Check hash exists ]
+    // index: new [
 
     // Construct new block index object
     CBlockIndex* pindexNew = new CBlockIndex(nFile, nBlockPos, *this);
@@ -2057,12 +2365,21 @@ bool CBlock::AddToBlockIndex(unsigned int nFile, unsigned int nBlockPos)
         pindexNew->nHeight = pindexNew->pprev->nHeight + 1;
     }
 
+    // index: new ]
+    // index: set bnChainTrust [
+
     // ppcoin: compute chain trust score
     pindexNew->bnChainTrust = (pindexNew->pprev ? pindexNew->pprev->bnChainTrust : 0) + pindexNew->GetBlockTrust();
+
+    // index: set bnChainTrust ]
+    // index: stake: unused - stake entropy bit [
 
     // ppcoin: compute stake entropy bit for stake modifier
     if (!pindexNew->SetStakeEntropyBit(GetStakeEntropyBit(pindexNew->nHeight)))
         return error("AddToBlockIndex() : SetStakeEntropyBit() failed");
+
+    // index: stake: unused - stake entropy bit ]
+    // index: stake: update hashProofOfStake [
 
     // Record proof hash value
     if (pindexNew->IsProofOfStake())
@@ -2072,6 +2389,10 @@ bool CBlock::AddToBlockIndex(unsigned int nFile, unsigned int nBlockPos)
          pindexNew->hashProofOfStake = mapProofOfStake[hash];
 
     }
+
+    // index: stake: update hashProofOfStake ]
+    // index: stake: s.1 compute stake modifier [
+
     // ppcoin: compute stake modifier
     uint64 nStakeModifier = 0;
     bool fGeneratedStakeModifier = false;
@@ -2082,11 +2403,17 @@ bool CBlock::AddToBlockIndex(unsigned int nFile, unsigned int nBlockPos)
     if (!CheckStakeModifierCheckpoints(pindexNew->nHeight, pindexNew->nStakeModifierChecksum))
         return error("AddToBlockIndex() : Rejected by stake modifier checkpoint height=%d, modifier=0x%016"PRI64x, pindexNew->nHeight, nStakeModifier);
 
+    // index: stake: s.1 compute stake modifier ]
+    // mapBlockIndex: add index [
+
     // Add to mapBlockIndex
     map<uint256, CBlockIndex*>::iterator mi = mapBlockIndex.insert(make_pair(hash, pindexNew)).first;
     if (pindexNew->IsProofOfStake())
         setStakeSeen.insert(make_pair(pindexNew->prevoutStake, pindexNew->nStakeTime));
     pindexNew->phashBlock = &((*mi).first);
+
+    // mapBlockIndex: add index ]
+    // txdb: write index [
 
     // Write to disk block index
     CTxDB txdb;
@@ -2096,12 +2423,24 @@ bool CBlock::AddToBlockIndex(unsigned int nFile, unsigned int nBlockPos)
     if (!txdb.TxnCommit())
         return false;
 
+    // txdb: write index ]
+    // chain: set best [
+
+    llogLog(L"txdb/write", L"bnChainTrust", pindexNew->bnChainTrust.GetHex().c_str());
+    llogLog(L"txdb/write", L"bnBestChainTrust", bnBestChainTrust.GetHex().c_str());
+
     // New best
     if (pindexNew->bnChainTrust > bnBestChainTrust)
         if (!SetBestChain(txdb, pindexNew))
             return false;
 
+    // chain: set best ]
+
     //txdb.Close();
+
+    // update: check pindexNew == pindexBest - poor code [
+
+    llogLog(L"txdb/write", L"pindexNew == pindexBest", pindexNew == pindexBest);
 
     if (pindexNew == pindexBest)
     {
@@ -2111,10 +2450,18 @@ bool CBlock::AddToBlockIndex(unsigned int nFile, unsigned int nBlockPos)
         hashPrevBestCoinBase = vtx[0].GetHash();
     }
 
+    // update: check pindexNew == pindexBest - poor code ]
+    // ui event [
+
     uiInterface.NotifyBlocksChanged();
+
+    // ui event ]
+
     return true;
 }
 
+// AddToBlockIndex ]
+// CheckBlock [
 
 bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot,
                                                    bool fCheckSig) const
@@ -2210,6 +2557,8 @@ if (!CheckCoinStakeTimestamp(GetBlockTime(), (int64)vtx[1].nTime))
     return true;
 }
 
+// CheckBlock ]
+// AcceptBlock [
 
 bool CBlock::AcceptBlock()
 {
@@ -2225,7 +2574,9 @@ bool CBlock::AcceptBlock()
     CBlockIndex* pindexPrev = (*mi).second;
     int nHeight = pindexPrev->nHeight+1;
 
-    if (IsProofOfWork() && (nHeight > CUTOFF_POW_BLOCK))
+
+//        if (IsProofOfWork() && (nHeight > CUTOFF_POW_BLOCK))
+    if (IsProofOfWork() && isPowEnabled(nHeight))
         return DoS(100, error("AcceptBlock() : No proof-of-work allowed anymore (height = %d)", nHeight));
 
     // Check proof-of-work or proof-of-stake
@@ -2297,6 +2648,12 @@ bool CBlock::AcceptBlock()
     return true;
 }
 
+// AcceptBlock ]
+
+// CBlock ]
+// CBlockIndex [
+
+// GetBlockTrust [
 
 CBigNum CBlockIndex::GetBlockTrust() const
 {
@@ -2318,6 +2675,9 @@ CBigNum CBlockIndex::GetBlockTrust() const
     }
 } 
 
+// GetBlockTrust ]
+// IsSuperMajority [
+
 bool CBlockIndex::IsSuperMajority(int minVersion, const CBlockIndex* pstart, unsigned int nRequired, unsigned int nToCheck)
 {
     unsigned int nFound = 0;
@@ -2330,16 +2690,25 @@ bool CBlockIndex::IsSuperMajority(int minVersion, const CBlockIndex* pstart, uns
     return (nFound >= nRequired);
 }
 
+// IsSuperMajority ]
+
+// CBlockIndex ]
+
+// ProcessBlock -> CheckProofOfStake [
 
 bool ProcessBlock(CNode* pfrom, CBlock* pblock, bool fIsBootstrap)
 // bool ProcessBlock(CNode* pfrom, CBlock* pblock)
 {
+    // Check for duplicate [
+
     // Check for duplicate
     uint256 hash = pblock->GetHash();
     if (mapBlockIndex.count(hash))
         return error("ProcessBlock() : already have block %d %s", mapBlockIndex[hash]->nHeight, hash.ToString().substr(0,20).c_str());
     if (mapOrphanBlocks.count(hash))
         return error("ProcessBlock() : already have block (orphan) %s", hash.ToString().substr(0,20).c_str());
+
+    // Check for duplicate ]
 
     // ppcoin: check proof-of-stake
     // Limited duplicity on stake: prevents block flood attack
@@ -2348,11 +2717,21 @@ bool ProcessBlock(CNode* pfrom, CBlock* pblock, bool fIsBootstrap)
     if (pblock->IsProofOfStake() && setStakeSeen.count(pblock->GetProofOfStake()) && !mapOrphanBlocksByPrev.count(hash) && !Checkpoints::WantedByPendingSyncCheckpoint(hash) & !fIsBootstrap)
         return error("ProcessBlock() : duplicate proof-of-stake (%s, %d) for block %s", pblock->GetProofOfStake().first.ToString().c_str(), pblock->GetProofOfStake().second, hash.ToString().c_str());
 
+    // pblock->CheckBlock [
+
     // Preliminary checks
     if (!pblock->CheckBlock())
         return error("ProcessBlock() : CheckBlock FAILED");
-    CBlockLocator locator;
-    int nHeight = locator.GetBlockIndex()->nHeight;
+
+    // pblock->CheckBlock ]
+    // x check height pow off - bug CBlockLocator locator bad - disabled by pblock->AcceptBlock() same check [
+/*
+    CBlockLocator locator; // bad
+    int nHeight = locator.GetBlockIndex()->nHeight; // bad - always 0
+
+    const CBlockIndex* pIndex0 = GetLastBlockIndex(pindexBest, false);
+
+    llogLog(L"Miner/pow", L"last nHeight", pIndex0->nHeight);
 
     if (pblock->IsProofOfWork() && (nHeight >= CUTOFF_POW_BLOCK)) {
         if (pfrom)
@@ -2360,10 +2739,15 @@ bool ProcessBlock(CNode* pfrom, CBlock* pblock, bool fIsBootstrap)
         printf("Proof of work on or after block %d.\n", CUTOFF_POW_BLOCK);
         return error("Proof of work on or after block %d.\n", CUTOFF_POW_BLOCK);
     }
+*/
+    // x check height pow off - bug CBlockLocator locator bad - disabled by pblock->AcceptBlock() same check ]
+    // -> CheckProofOfStake - if pblock->IsProofOfStake() [
+
 	// ppcoin: verify hash target and signature of coinstake tx
      if (pblock->IsProofOfStake())
      {
          uint256 hashProofOfStake = 0;
+         llogLog(L"ProcessNewBlock", L"new block", *pblock);
          if (!CheckProofOfStake(pblock->vtx[1], pblock->nBits, hashProofOfStake, IsInitialBlockDownload()))
          {
              printf("WARNING: ProcessBlock(): check proof-of-stake failed for block %s\n", hash.ToString().c_str());
@@ -2372,6 +2756,8 @@ bool ProcessBlock(CNode* pfrom, CBlock* pblock, bool fIsBootstrap)
          if (!mapProofOfStake.count(hash)) // add to mapProofOfStake
              mapProofOfStake.insert(make_pair(hash, hashProofOfStake));
      }
+
+    // -> CheckProofOfStake - if pblock->IsProofOfStake() ]
 
     CBlockIndex* pcheckpoint = Checkpoints::GetLastSyncCheckpoint();
 
@@ -2401,7 +2787,8 @@ bool ProcessBlock(CNode* pfrom, CBlock* pblock, bool fIsBootstrap)
 
     if (pblock->IsProofOfStake()) {
             bnRequired.SetCompact(ComputeMinStake(nLastBits, deltaTime, pblock->nTime));
-            if ((nThisHeight < CUTOFF_POW_BLOCK) && (bnNewBlock > GetProofOfStakeLimit(pblock->nTime))) {
+//        if ((nThisHeight < CUTOFF_POW_BLOCK) && (bnNewBlock > GetProofOfStakeLimit(pblock->nTime))) {
+            if ((isPowEnabled(nThisHeight)) && (bnNewBlock > GetProofOfStakeLimit(pblock->nTime))) {
                 bnNewBlock = bnNewBlock >> 2;  // adjust target for big hashes
             }
         }
@@ -2483,6 +2870,9 @@ bool ProcessBlock(CNode* pfrom, CBlock* pblock, bool fIsBootstrap)
     return true;
 }
 
+// ProcessBlock -> CheckProofOfStake ]
+// CBlock::SignBlock [
+
 // ppcoin: sign block
 bool CBlock::SignBlock(const CKeyStore& keystore)
 {
@@ -2541,6 +2931,9 @@ bool CBlock::SignBlock(const CKeyStore& keystore)
     return false;
 }
 
+// CBlock::SignBlock ]
+// CBlock::CheckBlockSignature [
+
 // ppcoin: check block signature
 bool CBlock::CheckBlockSignature() const
 {
@@ -2595,6 +2988,11 @@ bool CBlock::CheckBlockSignature() const
     return false;
 }
 
+// CBlock::CheckBlockSignature ]
+
+// U2 [
+
+// CheckDiskSpace [
 
 bool CheckDiskSpace(uint64 nAdditionalBytes)
 {
@@ -2614,6 +3012,7 @@ bool CheckDiskSpace(uint64 nAdditionalBytes)
     return true;
 }
 
+// CheckDiskSpace ]
 
 static filesystem::path BlockFilePath(unsigned int nFile)
 {
@@ -2664,6 +3063,9 @@ FILE* AppendBlockFile(unsigned int& nFileRet)
     }
 }
 
+// U2 ]
+
+// LoadBlockIndex [
 
 bool LoadBlockIndex(bool fAllowNew)
 {
@@ -2674,8 +3076,10 @@ bool LoadBlockIndex(bool fAllowNew)
         pchMessageStart[2] = 0x22;
         pchMessageStart[3] = 0x05;
 
-        bnProofOfStakeLimit = bnProofOfStakeLimitTestNet; // 0x00000fff PoS base target is fixed in testnet
-        bnProofOfWorkLimit = bnProofOfWorkLimitTestNet; // 0x0000ffff PoW base target is fixed in testnet
+        // G.2 GENESIS PROOF OF WORK == main!!! [
+//        bnProofOfStakeLimit = bnProofOfStakeLimitTestNet; // 0x00000fff PoS base target is fixed in testnet
+//        bnProofOfWorkLimit = bnProofOfWorkLimitTestNet; // 0x0000ffff PoW base target is fixed in testnet
+        // G.2 GENESIS PROOF OF WORK == main!!! ]
         nStakeMinAge = 15 * 60; // test net min age is 20 min
         nStakeMaxAge = 60 * 60; // test net min age is 60 min
 		nModifierInterval = 60; // test modifier interval is 2 minutes
@@ -2716,6 +3120,8 @@ bool LoadBlockIndex(bool fAllowNew)
         block.nTime    = 1488585034;
         block.nBits    = bnProofOfWorkLimit.GetCompact();
         block.nNonce   = 141844; // perfect nonce
+
+        llogLog(L"LoadBlockIndex", L"genesis", block);
 
         if (false && (block.GetHash() != hashGenesisBlock)) {
 
@@ -2777,7 +3183,9 @@ bool LoadBlockIndex(bool fAllowNew)
     return true;
 }
 
+// LoadBlockIndex ]
 
+// PrintBlockTree [
 
 void PrintBlockTree()
 {
@@ -2853,6 +3261,9 @@ void PrintBlockTree()
     }
 }
 
+// PrintBlockTree ]
+// LoadExternalBlockFile [
+
 bool LoadExternalBlockFile(FILE* fileIn)
 {
     int64 nStart = GetTimeMillis();
@@ -2915,7 +3326,9 @@ bool LoadExternalBlockFile(FILE* fileIn)
 }
 
 
+// LoadExternalBlockFile ]
 
+// CAlert GetWarnings [
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -2980,14 +3393,16 @@ string GetWarnings(string strFor)
     return "error";
 }
 
+// CAlert GetWarnings ]
 
-
+// Messages [
 
 //////////////////////////////////////////////////////////////////////////////
 //
 // Messages
 //
 
+// is AlreadyHave inv MSG_TX | MSG_BLOCK ? [
 
 bool static AlreadyHave(CTxDB& txdb, const CInv& inv)
 {
@@ -3014,7 +3429,9 @@ bool static AlreadyHave(CTxDB& txdb, const CInv& inv)
 }
 
 
+// is AlreadyHave inv MSG_TX | MSG_BLOCK ? ]
 
+// ProcessMessage [
 
 // The message start string is designed to be unlikely to occur in normal data.
 // The characters are rarely used upper ASCII, not valid as UTF-8, and produce
@@ -3077,10 +3494,57 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
             return false;
         }
 
+        // l.1.v llog version message [
+
+        volatile int nVersion = pfrom->nVersion;
+
+        if (nVersion > 70000)
+            nVersion = nVersion; // breakpoint
+
+        std::wostringstream ss;
+
+        ss << "\n";
+        ss << " nVersion " << nVersion << "\n";
+        ss << " addr " << pfrom->addr.ToString().c_str() << "\n";
+        ss << " nServiceInt " << pfrom->nServices << "\n";
+        ss << " nTime " << nTime << " 0x" << std::hex << nTime << std::dec << "\n";
+        ss << " addrMe " << addrMe.ToString().c_str() << "\n";
+
+        llogLog(L"ProcessMessage/handshake", ss.str().c_str());
+        llogLog(L"ProcessMessage/handshake", L"recv", vRecv.data().data(), (int)vRecv.data().size(), 0);
+
+        // l.1.v llog version message ]
+
         if (pfrom->nVersion == 10300)
             pfrom->nVersion = 300;
-        if (!vRecv.empty())
-            vRecv >> addrFrom >> verification_token >> nNonce;
+//        if (!vRecv.empty())
+//            vRecv >> addrFrom >> verification_token >> nNonce;
+
+
+        if (!vRecv.empty()) {
+            vRecv >> addrFrom;
+            llogLog(L"ProcessMessage/handshake", L"recv addrFrom", &vRecv[0], (int)vRecv.size(), 0);
+            vRecv >> verification_token;
+            llogLog(L"ProcessMessage/handshake", L"recv verification_token", &vRecv[0], (int)vRecv.size(), 0);
+            vRecv >> nNonce;
+            llogLog(L"ProcessMessage/handshake", L"recvN nNonce", &vRecv[0], (int)vRecv.size(), 0);
+        }
+
+        // l.20.1 llog more [
+
+        ss.str(L"\n");
+
+        ss << " addrFrom " << addrFrom.ToString().c_str() << "\n";
+        ss << " verification_token " << std::hex << verification_token << std::dec << "\n";
+        ss << " nNonce " << std::hex << nNonce << std::dec << "\n";
+
+        llogLog(L"ProcessMessage/handshake", ss.str().c_str());
+
+        if (nVersion > 70000)
+            nVersion = nVersion; // breakpoint
+
+        // l.20.1 llog more ]
+
         if (!vRecv.empty()) {
             vRecv >> pfrom->strSubVer;
             pfrom->cleanSubVer = SanitizeString(pfrom->strSubVer);
@@ -3113,6 +3577,8 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
         if (addrFrom.IsRoutable() && addrMe.IsRoutable())
             addrSeenByPeer = addrMe;
 
+        // O.3.1 old gcc bug - tor pushVersion before addr=addrFrom and verification_token [
+/*
         // Be shy and don't send version until we hear
         if (fDebug) {
               printf("ProcessMessage(): %s\n", pfrom->addr.ToString().c_str());
@@ -3127,6 +3593,8 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
         // Change version
         pfrom->PushMessage("verack");
         pfrom->vSend.SetVersion(min(pfrom->nVersion, PROTOCOL_VERSION));
+*/
+        // O.3.1 old gcc bug - tor pushVersion before addr=addrFrom and verification_token ]
 
         if (!pfrom->fInbound)
         {
@@ -3154,6 +3622,13 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
                 pfrom->fDisconnect = true;
                 return true;
             }
+
+            // O.4 disable check verification_token for tor inbound [
+
+            if (pfrom->fInbound && pfrom->addr.IsTor()) {
+                addrman.SetVerificationToken(addrFrom, verification_token);
+            }
+
             if (addrman.CheckVerificationToken(addrFrom, verification_token)) {
                 printf("connection from %s verified\n", addrFrom.ToString().c_str());
                 pfrom->fVerified = true;
@@ -3163,7 +3638,27 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
                 addrman.SetReconnectToken(addrFrom, verification_token);
             }
 
+            // O.4 disable check verification_token for tor inbound ]
         }
+
+        // O.3.2 old gcc bug - tor addr=addrFrom -> pushVersion [
+
+        // Be shy and don't send version until we hear
+        if (fDebug) {
+            printf("ProcessMessage(): %s\n", pfrom->addr.ToString().c_str());
+        }
+        if (pfrom->fInbound)
+            pfrom->PushVersion();
+
+        pfrom->fClient = !(pfrom->nServices & NODE_NETWORK);
+
+        AddTimeData(pfrom->addr, nTime);
+
+        // O.3.2 old gcc bug - tor addr=addrFrom -> pushVersion ]
+
+        // Change version
+        pfrom->PushMessage("verack");
+        pfrom->vSend.SetVersion(min(pfrom->nVersion, PROTOCOL_VERSION));
 
         // Ask the first connected node for block updates
         static int nAskedForBlocks = 0;
@@ -3731,6 +4226,9 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
     return true;
 }
 
+// ProcessMessage ]
+// ProcessMessages [
+
 bool ProcessMessages(CNode* pfrom)
 {
     if (fDebug) {
@@ -3863,6 +4361,8 @@ bool ProcessMessages(CNode* pfrom)
     return true;
 }
 
+// ProcessMessages ]
+// SendMessages [
 
 bool SendMessages(CNode* pto, bool fSendTrickle)
 {
@@ -4024,14 +4524,18 @@ bool SendMessages(CNode* pto, bool fSendTrickle)
     return true;
 }
 
+// SendMessages ]
 
-
+// Messages ]
+// BitcoinMiner [
 
 
 //////////////////////////////////////////////////////////////////////////////
 //
 // BitcoinMiner
 //
+
+// M1 [
 
 int static FormatHashBlocks(void* pbuffer, unsigned int len)
 {
@@ -4121,6 +4625,9 @@ public:
         }
     }
 };
+
+// M1 ]
+// CreateNewBlock [
 
 // CreateNewBlock:
 //   fProofOfStake: try (best effort) to make a proof-of-stake block
@@ -4406,6 +4913,8 @@ CBlock* CreateNewBlock(CWallet* pwallet, bool fProofOfStake)
     return pblock.release();
 }
 
+// CreateNewBlock ]
+// IncrementExtraNonce [
 
 void IncrementExtraNonce(CBlock* pblock, CBlockIndex* pindexPrev, unsigned int& nExtraNonce)
 {
@@ -4424,6 +4933,8 @@ void IncrementExtraNonce(CBlock* pblock, CBlockIndex* pindexPrev, unsigned int& 
     pblock->hashMerkleRoot = pblock->BuildMerkleTree();
 }
 
+// IncrementExtraNonce ]
+// FormatHashBuffers [
 
 void FormatHashBuffers(CBlock* pblock, char* pmidstate, char* pdata, char* phash1)
 {
@@ -4470,6 +4981,8 @@ void FormatHashBuffers(CBlock* pblock, char* pmidstate, char* pdata, char* phash
     memcpy(phash1, &tmp.hash1, 64);
 }
 
+// FormatHashBuffers ]
+// CheckWork [
 
 bool CheckWork(CBlock* pblock, CWallet& wallet, CReserveKey& reservekey)
 {
@@ -4508,6 +5021,10 @@ bool CheckWork(CBlock* pblock, CWallet& wallet, CReserveKey& reservekey)
     return true;
 }
 
+// CheckWork ]
+
+// BitcoinMiner [
+
 void static ThreadBitcoinMiner(void* parg);
 
 static bool fGenerateBitcoins = false;
@@ -4516,11 +5033,18 @@ static int nLimitProcessors = -1;
 
 void BitcoinMiner(CWallet *pwallet, bool fProofOfStake)
 {
+    // info [
+
     printf("CPUMiner started for proof-of-%s\n", fProofOfStake? "stake" : "work");
     SetThreadPriority(THREAD_PRIORITY_LOWEST);
 
     // Make this thread recognisable as the mining thread
     RenameThread("bitcoin-miner");
+
+    wstring path = wstring(L"Miner/") + (fProofOfStake ? L"pow" : L"pos");
+    llogLog(path, L"run", fProofOfStake ? "pow" : "pos");
+
+    // info ]
 
     // Each thread has its own key and counter
     CReserveKey reservekey(pwallet);
@@ -4531,15 +5055,21 @@ void BitcoinMiner(CWallet *pwallet, bool fProofOfStake)
         if (fShutdown)
             return;
 
-        while (vNodes.empty() || IsInitialBlockDownload() || pwallet->IsLocked())
+        // m.1 miner disable vNodes.empty() [
+
+//        while (vNodes.empty() || IsInitialBlockDownload() || pwallet->IsLocked())
+        while (IsInitialBlockDownload() || pwallet->IsLocked())
         {
             nLastCoinStakeSearchInterval = 0;
-            Sleep(1000);
+//            Sleep(1000);
+            Sleep(1);
             if (fShutdown)
                 return;
             if (!fGenerateBitcoins && !fProofOfStake)
                 return;
         }
+
+        // m.1 miner disable vNodes.empty() ]
 
         while (NULL == pindexBest)
             Sleep(1000);
@@ -4569,7 +5099,8 @@ void BitcoinMiner(CWallet *pwallet, bool fProofOfStake)
                 SetThreadPriority(THREAD_PRIORITY_LOWEST);
             }
             // space blocks better, sleep 1 minute after mint
-            Sleep(60000);
+//            Sleep(60000);
+            Sleep(1000);
             continue;
         }
 
@@ -4601,8 +5132,15 @@ void BitcoinMiner(CWallet *pwallet, bool fProofOfStake)
 	    hash = pblock->GetHash();
             if (hash <= hashTarget){
                 // nHashesDone += pblock->nNonce;
+
+                llogLog(L"POW", L"pblock->SignBlock", *pblock);
+
+                // POW pblock->SignBlock [
+
                 if (!pblock->SignBlock(*pwalletMain))
                     break;
+
+                // POW pblock->SignBlock ]
 
                 SetThreadPriority(THREAD_PRIORITY_NORMAL);
 
@@ -4650,8 +5188,14 @@ void BitcoinMiner(CWallet *pwallet, bool fProofOfStake)
                 return;
             if (fLimitProcessors && vnThreadsRunning[THREAD_MINER] > nLimitProcessors)
                 return;
-            if (vNodes.empty())
-                break;
+
+            // m.1.2 disable vNodes.empty() [
+
+/*            if (vNodes.empty())
+                break;*/
+
+            // m.1.2 disable vNodes.empty() ]
+
             if (++pblock->nNonce >= 0xffff0000)
                 break;
             if (nTransactionsUpdated != nTransactionsUpdatedLast && GetTime() - nStart > 60)
@@ -4669,6 +5213,9 @@ void BitcoinMiner(CWallet *pwallet, bool fProofOfStake)
         }
     }
 }
+
+// BitcoinMiner ]
+// ThreadBitcoinMiner [
 
 void static ThreadBitcoinMiner(void* parg)
 {
@@ -4692,6 +5239,8 @@ void static ThreadBitcoinMiner(void* parg)
     printf("ThreadBitcoinMiner exiting, %d threads remaining\n", vnThreadsRunning[THREAD_MINER]);
 }
 
+// ThreadBitcoinMiner ]
+// GenerateBitcoins [
 
 void GenerateBitcoins(bool fGenerate, CWallet* pwallet)
 {
@@ -4719,3 +5268,7 @@ void GenerateBitcoins(bool fGenerate, CWallet* pwallet)
         }
     }
 }
+
+// GenerateBitcoins ]
+
+// BitcoinMiner ]

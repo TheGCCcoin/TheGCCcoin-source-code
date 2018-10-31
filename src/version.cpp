@@ -68,6 +68,11 @@ const std::string CLIENT_NAME("TheGCCcoin");
 #    endif
 #endif
 
-const std::string CLIENT_BUILD(BUILD_DESC CLIENT_VERSION_SUFFIX);
-const std::string CLIENT_NUMBERS(BUILD_NUMBERS);
+// v.1 fix version - todo: review [
+//const std::string CLIENT_BUILD(BUILD_DESC CLIENT_VERSION_SUFFIX);
+//const std::string CLIENT_NUMBERS(BUILD_NUMBERS);
+std::string CLIENT_BUILD = (BUILD_DESC CLIENT_VERSION_SUFFIX);
+std::string CLIENT_NUMBERS = (BUILD_NUMBERS);
+// v.1 fix version - todo: review ]
+
 const std::string CLIENT_DATE(BUILD_DATE);

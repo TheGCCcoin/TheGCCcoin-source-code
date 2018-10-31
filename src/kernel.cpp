@@ -398,6 +398,8 @@ bool CheckStakeKernelHash(unsigned int nBits, const CBlock& blockFrom, unsigned 
     return true;
 }
 
+// CheckProofOfStake [
+
 // Check kernel hash target and coinstake signature
 bool CheckProofOfStake(const CTransaction& tx, unsigned int nBits, uint256& hashProofOfStake,
                        bool fIsInitialDownload)
@@ -425,9 +427,13 @@ bool CheckProofOfStake(const CTransaction& tx, unsigned int nBits, uint256& hash
         return tx.DoS(1, error("CheckProofOfStake() : INFO: read txPrev failed"));
     //txdb.Close();
 
+    // -> VerifySignature [
+
     // Verify signature
     if (!VerifySignature(txPrev, tx, 0, true, 0))
         return tx.DoS(100, error("CheckProofOfStake() : VerifySignature failed on coinstake %s", tx.GetHash().ToString().c_str()));
+
+    // -> VerifySignature ]
 
     // Read block header
     CBlock block;
@@ -439,6 +445,8 @@ bool CheckProofOfStake(const CTransaction& tx, unsigned int nBits, uint256& hash
 
     return true;
 }
+
+// CheckProofOfStake ]
 
 // Check whether the coinstake timestamp meets protocol
 bool CheckCoinStakeTimestamp(int64 nTimeBlock, int64 nTimeTx)

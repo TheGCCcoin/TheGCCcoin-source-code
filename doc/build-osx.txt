@@ -110,7 +110,7 @@ https://matthew-brett.github.io/docosx/mac_runtime_link.html
 Install Homebrew: /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 Qt5 app bundle requires two additional dylib: mysql client and postgresql client: (brew install mysql55 postgresql)
 To prepare app bundle:
- - set environment variable QTDIR=/Users/aliaksei/GCC/deps/Qt551/5.5/clang_64
+ - set environment variable QTDIR=/Users/GCC/deps/Qt551/5.5/clang_64
  - run python 2.7 script: contrib\macdeploy\macdeployqtplus
 
 More information on compilation bitcoin based crypto currency

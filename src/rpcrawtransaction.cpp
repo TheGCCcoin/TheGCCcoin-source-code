@@ -26,6 +26,8 @@ using namespace json_spirit;
 // Externally constructed transactions have a 10 minute window
 const int MaxTxnTimeDrift = 5 * 60;
 
+// ScriptPubKeyToJSON [
+
 void ScriptPubKeyToJSON(const CScript& scriptPubKey, Object& out)
 {
     txnouttype type;
@@ -49,6 +51,9 @@ void ScriptPubKeyToJSON(const CScript& scriptPubKey, Object& out)
         a.push_back(CBitcoinAddress(addr).ToString());
     out.push_back(Pair("addresses", a));
 }
+
+// ScriptPubKeyToJSON ]
+// TxToJSON [
 
 void TxToJSON(const CTransaction& tx, const uint256 hashBlock, Object& entry)
 {
@@ -107,6 +112,8 @@ void TxToJSON(const CTransaction& tx, const uint256 hashBlock, Object& entry)
         }
     }
 }
+
+// TxToJSON ]
 
 Value getrawtransaction(const Array& params, bool fHelp)
 {

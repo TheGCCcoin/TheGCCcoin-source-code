@@ -155,7 +155,7 @@ class FrameworkInfo(object):
 class ApplicationBundleInfo(object):
     def __init__(self, path):
         self.path = path
-        appName = "TheGCCcoin Qt"
+        appName = "TheGCCcoin-Qt"
         self.binaryPath = os.path.join(path, "Contents", "MacOS", appName)
         if not os.path.exists(self.binaryPath):
             raise RuntimeError("Could not find bundle binary for " + path)
@@ -263,7 +263,7 @@ def copyFramework(framework, path, verbose):
     toDir = os.path.join(path, framework.destinationDirectory)
     toPath = os.path.join(toDir, framework.binaryName)
 
-    fromPath = fromPath.replace("@rpath", "/Users/aliaksei/GCC/deps/Qt551/5.5/clang_64/lib", 1)
+    fromPath = fromPath.replace("@rpath", "/Users/gcc/Qt5.5.1/5.5/clang_64/lib", 1)
     if not os.path.exists(fromPath):
         raise RuntimeError("No file at " + fromPath)
     
@@ -604,7 +604,7 @@ else:
 
 # ------------------------------------------------
 
-target = os.path.join("dist", "TheGCCcoin Qt.app")
+target = os.path.join("dist", "TheGCCcoin-Qt.app")
 
 if verbose >= 2:
     print("+ Copying source bundle +")

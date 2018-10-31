@@ -23,6 +23,8 @@ const int TAG_SIZE = 16;  // bouncycastle default
 const int KEY_SIZE = 32;  // SHA256 for key deriv
 const int IV_SIZE = AES::BLOCKSIZE;
 
+typedef unsigned char byte;
+
 
 void SHAKD(std::string twofa, std::string iv_str, byte key[KEY_SIZE]);
 bool decryptstealthtxt(std::string msg64,

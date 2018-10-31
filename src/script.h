@@ -574,9 +574,9 @@ public:
                 str += "[error]";
                 return str;
             }
-            if (0 <= opcode && opcode <= OP_PUSHDATA4)
-                str += fShort? ValueString(vch).substr(0, 10) : ValueString(vch);
-            else
+            if (0 <= opcode && opcode <= OP_PUSHDATA4) {
+                str += fShort ? ValueString(vch).substr(0, 10) : ValueString(vch);
+            } else
                 str += GetOpName(opcode);
         }
         return str;

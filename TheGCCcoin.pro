@@ -1,6 +1,6 @@
 TEMPLATE = app
-TARGET = "TheGCCcoin Qt"
-VERSION = 2.2.3.2
+TARGET = "TheGCCcoin-Qt"
+VERSION = 2.3.0.0
 
 INCLUDEPATH += src src/json src/qt src/tor
 INCLUDEPATH += src/tor/adapter src/tor/common src/tor/ext
@@ -14,6 +14,8 @@ QT += core gui network widgets webkit
 CONFIG += no_include_pwd
 CONFIG += thread
 CONFIG += exceptions
+CONFIG -= x86_64 ppc64
+CONFIG += x86 ppc
 
 lessThan(QT_MAJOR_VERSION, 5): CONFIG += webkit
 QMAKE_CXXFLAGS = -fpermissive
@@ -48,7 +50,7 @@ INCLUDEPATH += $$BOOST_INCLUDE_PATH $$BDB_INCLUDE_PATH $$OPENSSL_INCLUDE_PATH $$
 LIBS += $$join(BOOST_LIB_PATH,,-L,) $$join(BDB_LIB_PATH,,-L,) $$join(OPENSSL_LIB_PATH,,-L,) $$join(MINIUPNPC_LIB_PATH,,-L,) $$join(QRENCODE_LIB_PATH,,-L,) $$join(LIBEVENT_LIB_PATH,,-L,) $$join(CRYPTO_LIB_PATH,,-L,) $$join(LEVELDB_LIB_PATH,,-L,)
 }
 else {
-DEPS_PATH=/opt/local
+DEPS_PATH=/usr/lib
 BOOST_LIB_SUFFIX=-mt-s
 INCLUDE_PATH=$$DEPS_PATH/include
 LIB_PATH=$$DEPS_PATH/lib
@@ -100,9 +102,12 @@ contains(BITCOIN_NEED_QT_PLUGINS, 1) {
 # use: qmake "RELEASE=1"
 contains(RELEASE, 1) {
     # Mac: ensure compatibility with at least 10.7, 64 bit
-    macx:QMAKE_CXXFLAGS += -mmacosx-version-min=10.6 -arch i386 -isysroot /Developer/SDKs/MacOSX10.6.sdk
-    macx:QMAKE_CFLAGS += -mmacosx-version-min=10.6 -arch i386 -isysroot /Developer/SDKs/MacOSX10.6.sdk
-    macx:QMAKE_OBJECTIVE_CFLAGS += -mmacosx-version-min=10.6 -arch i386 -isysroot /Developer/SDKs/MacOSX10.6.sdk
+#    macx:QMAKE_CXXFLAGS += -mmacosx-version-min=10.6 -arch i386 -isysroot /Developer/SDKs/MacOSX10.6.sdk
+#    macx:QMAKE_CFLAGS += -mmacosx-version-min=10.6 -arch i386 -isysroot /Developer/SDKs/MacOSX10.6.sdk
+#    macx:QMAKE_OBJECTIVE_CFLAGS += -mmacosx-version-min=10.6 -arch i386 -isysroot /Developer/SDKs/MacOSX10.6.sdk
+    macx:QMAKE_CXXFLAGS += -mmacosx-version-min=10.8 -arch x86_64 -isysroot /Developer/SDKs/MacOSX10.8.sdk
+    macx:QMAKE_CFLAGS += -mmacosx-version-min=10.8 -arch x86_64 -isysroot /Developer/SDKs/MacOSX10.8.sdk
+    macx:QMAKE_OBJECTIVE_CFLAGS += -mmacosx-version-min=10.8s -arch x86_64 -isysroot /Developer/SDKs/MacOSX10.8.sdk
 
     !win32:!macx {
         # Linux: static link
@@ -478,7 +483,8 @@ SOURCES += \
     src/qt/qstealthpage.cpp \
     src/qt/qstealthtableview.cpp \
     src/qt/common/mymodel.cpp \
-    src/qt/qpagetransactions.cpp
+    src/qt/qpagetransactions.cpp \
+    src/livelog/llog-dump.cpp
 
 RESOURCES += \
     src/qt/bitcoin.qrc

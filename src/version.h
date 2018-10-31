@@ -18,8 +18,12 @@ static const int CLIENT_VERSION =
                          +       1 * CLIENT_VERSION_BUILD;
 
 extern const std::string CLIENT_NAME;
-extern const std::string CLIENT_BUILD;
-extern const std::string CLIENT_NUMBERS;
+// v.1.1 fix version - todo: review [
+//extern const std::string CLIENT_BUILD;
+//extern const std::string CLIENT_NUMBERS;
+extern std::string CLIENT_BUILD;
+extern std::string CLIENT_NUMBERS;
+// v.1.1 fix version - todo: review ]
 extern const std::string CLIENT_DATE;
 
 //
@@ -52,8 +56,8 @@ static const int MEMPOOL_GD_VERSION = 60002;
 static const int DATABASE_VERSION = 61201;
 
 #define DISPLAY_VERSION_MAJOR       2
-#define DISPLAY_VERSION_MINOR       2
-#define DISPLAY_VERSION_REVISION    3
-#define DISPLAY_VERSION_BUILD       2
+#define DISPLAY_VERSION_MINOR       3
+#define DISPLAY_VERSION_REVISION    0
+#define DISPLAY_VERSION_BUILD       0
 
 #endif

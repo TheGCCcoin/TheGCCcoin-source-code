@@ -1,0 +1,4 @@
+# Mac specific
+.DS_Store
+build
+.idea

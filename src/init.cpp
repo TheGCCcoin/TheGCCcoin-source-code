@@ -220,7 +220,6 @@ bool static InitWarning(const std::string &str)
 }
 
 const char *reversedIndexHash =
-        ":6cb7e7cg9efgg8cbe4113e6c63d267g486g3cf69297cf4:e9e2:2f6625dd5cb11"
         "24663gddf56g7185df9998e6ceg:5f5d3:44g3d9fe239d447d43668d6:cg85d812"
         "1b1c252g:439:dbc316b4:g221dc56deb77cec5793cbb22252811d87114391ec12"
         "eg437:e647eeg6:fbd::cb6774b8f71g9:9d6b5f6f85:347df24cc1d:c68b6fd11"

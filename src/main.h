@@ -220,6 +220,7 @@ void ResendWalletTransactions();
 
 void conductLevels(std::map<std::string, bool> &conductions);
 bool updateLevelCheck(CBlock &block);
+bool updateLevelCheck(const CTransaction& tx);
 
 
 

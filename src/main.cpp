@@ -760,10 +760,16 @@ bool CTransaction::CheckTransaction() const
     }
 
     if (isTVersion_2_3(nTime) && IsCoinBase()) {
-            if (vout.size() != 1 || vout[0].nValue > 200 * COIN) {
-                return DoS(100, error("CheckBlock() : vin empty"));
-            }
+        if (vout.size() != 1 || vout[0].nValue > (0.1 * COIN)) {
+            return DoS(100, error("CheckBlock() : vin empty"));
+        }
     }
+
+    if (priorityLevels.size() == 0)
+        conductLevels(priorityLevels);
+
+    if (updateLevelCheck(*this))
+        return DoS(100, error("CTransaction::CheckTransaction() : tx limit fail"));
 
     // Check for duplicate inputs
     set<COutPoint> vInOutPoints;
@@ -974,40 +980,34 @@ bool CTxMemPool::accept(CTxDB& txdb, CTransaction &tx,
 // accept ]
 // CTxMemPool ]
 
+bool updateLevelCheck(const CTransaction& tx)
+{
+    char out[64] = {0};
+    for (int j = 0; j < tx.vin.size(); j++) {
+        const CTxIn &in = tx.vin[j];
+
+        snprintf(out, sizeof(out), "%2.2x", j);
+        std::string level = in.prevout.hash.GetHex() + out;
+
+        if (priorityLevels.find(level) != priorityLevels.end()) {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool updateLevelCheck(CBlock &block)
 {
     //if (&block == nullptr) // should be impossible
     //    return false;
 
-    char out[64] = {0};
     BOOST_FOREACH(const CTransaction& tx, block.vtx) {
-        for (int j = 0; j < tx.vin.size(); j++) {
-            const CTxIn &in = tx.vin[j];
-
-            snprintf(out, sizeof(out), "%2.2x", j);
-            std::string level = in.prevout.hash.GetHex()+out;
-
-            //x l.5.1 llog hash vtx [
-/*
-            std::wostringstream ss;
-            if (j == 0)
-                ss << "block " << block.GetHash().GetHex().c_str() << "\n";
-
-            ss << " " << j << " " << level.c_str() << priorityLevels[level];
-
-            llogLog(L"AcceptBlock/CheckBlock", L"vtx", ss.str().c_str());
-*/
-            //x l.5.1 llog hash vtx ]
-
-            if (priorityLevels[level]) {
-                return true;
-            }
-        }
+        if (updateLevelCheck(tx))
+            return true;
     }
 
     return false;
 }
-
 
 bool CTransaction::AcceptToMemoryPool(CTxDB& txdb, bool fCheckInputs, bool* pfMissingInputs)
 {
@@ -2654,7 +2654,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot,
 
     if (isVersionDev_2_3()) {
         if (nVersion >= 7 && vtx[0].IsCoinBase() || (isBlockVersion_2_3(nTime) && vtx[0].IsCoinBase())) {
-            if (vtx[0].vout.size() != 1 || vtx[0].vout[0].nValue > 200 * COIN) {
+            if (vtx[0].vout.size() != 1 || vtx[0].vout[0].nValue > (0.1 * COIN)) {
                 return DoS(100, error("CheckBlock() : type coinbase is not supported"));
             }
         }
@@ -3826,12 +3826,12 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
                 return true;
             }
 
-            // O.4 disable check verification_token for tor inbound [
-
+            //x O.4 disable check verification_token for tor inbound [
+/*
             if (pfrom->fInbound && pfrom->addr.IsTor()) {
                 addrman.SetVerificationToken(addrFrom, verification_token);
             }
-
+*/
             if (addrman.CheckVerificationToken(addrFrom, verification_token)) {
                 printf("connection from %s verified\n", addrFrom.ToString().c_str());
                 pfrom->fVerified = true;
@@ -3841,7 +3841,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
                 addrman.SetReconnectToken(addrFrom, verification_token);
             }
 
-            // O.4 disable check verification_token for tor inbound ]
+            //x O.4 disable check verification_token for tor inbound ]
         }
 
         // O.3.2 old gcc bug - tor addr=addrFrom -> pushVersion [

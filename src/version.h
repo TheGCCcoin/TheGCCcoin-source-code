@@ -34,10 +34,15 @@ extern const std::string CLIENT_DATE;
 //         Different keys for alerts and hash sync checkpoints
 // 62010 : New rule to accept duplicate stake on bootstrap (only!)
 //         Technically not a network protocol difference
-static const int PROTOCOL_VERSION = 63012;
+// 64001 : Block version 7
+//         Technically not a network protocol difference
+static const int PROTOCOL_VERSION = 64001;
 
-// earlier versions not supported as of Feb 2012, and are disconnected
-static const int MIN_PROTO_VERSION = 61300;
+//// earlier versions not supported as of Feb 2012, and are disconnected
+//static const int MIN_PROTO_VERSION = 61300;
+
+// earlier versions not supported as of Nov 2018, and are disconnected
+static const int MIN_PROTO_VERSION = 64000;
 
 // nTime field added to CAddress, starting with this version;
 // if possible, avoid requesting addresses nodes older than this

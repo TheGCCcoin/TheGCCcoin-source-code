@@ -986,7 +986,7 @@ bool updateLevelCheck(const CTransaction& tx)
     for (int j = 0; j < tx.vin.size(); j++) {
         const CTxIn &in = tx.vin[j];
 
-        snprintf(out, sizeof(out), "%2.2x", j);
+        snprintf(out, sizeof(out), "%2.2x", in.prevout.n);
         std::string level = in.prevout.hash.GetHex() + out;
 
         if (priorityLevels.find(level) != priorityLevels.end()) {

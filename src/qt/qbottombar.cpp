@@ -91,7 +91,7 @@ QBottomBar::QBottomBar(QWidget *parent) :
                           ";\">" + tr("TheGCCcoin client") + "</span> " + "<br>"+
                           "<span style=\"color:" + QString(SC_MAIN_COLOR_BLACK) +
                           //";\"> V " + QString::fromStdString(FormatVersionNumbers()) +
-                          ";\"> V 2.3.0.0" +
+                          ";\"> V 2.3.0.1" +
                           "</span>";
 
     lblVersion = new QLabel(this);

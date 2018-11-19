@@ -1,6 +1,6 @@
 TEMPLATE = app
 TARGET = "TheGCCcoin-Qt"
-VERSION = 2.3.0.0
+VERSION = 2.3.0.1
 
 INCLUDEPATH += src src/json src/qt src/tor
 INCLUDEPATH += src/tor/adapter src/tor/common src/tor/ext

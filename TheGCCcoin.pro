@@ -1,6 +1,6 @@
 TEMPLATE = app
 TARGET = "TheGCCcoin-Qt"
-VERSION = 2.3.0.0
+VERSION = 2.3.0.1
 
 INCLUDEPATH += src src/json src/qt src/tor
 INCLUDEPATH += src/tor/adapter src/tor/common src/tor/ext
@@ -50,7 +50,7 @@ INCLUDEPATH += $$BOOST_INCLUDE_PATH $$BDB_INCLUDE_PATH $$OPENSSL_INCLUDE_PATH $$
 LIBS += $$join(BOOST_LIB_PATH,,-L,) $$join(BDB_LIB_PATH,,-L,) $$join(OPENSSL_LIB_PATH,,-L,) $$join(MINIUPNPC_LIB_PATH,,-L,) $$join(QRENCODE_LIB_PATH,,-L,) $$join(LIBEVENT_LIB_PATH,,-L,) $$join(CRYPTO_LIB_PATH,,-L,) $$join(LEVELDB_LIB_PATH,,-L,)
 }
 else {
-DEPS_PATH=/usr/lib
+DEPS_PATH=/Users/gcc/old_gcc/deps/local
 BOOST_LIB_SUFFIX=-mt-s
 INCLUDE_PATH=$$DEPS_PATH/include
 LIB_PATH=$$DEPS_PATH/lib

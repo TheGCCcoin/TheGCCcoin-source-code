@@ -229,8 +229,8 @@ bool isBlockV_2_3(int blockVersion, int blockHeight)
 void llogDevParams()
 {
     if (isVersionDev_2_3()) {
-        CLIENT_BUILD = "v2.3.0.0";
-        CLIENT_NUMBERS = "2.3.0.0";
+        CLIENT_BUILD = "v2.3.0.1";
+        CLIENT_NUMBERS = "2.3.0.1";
     }
 
     // dump args [

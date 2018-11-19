@@ -563,6 +563,9 @@ void CNode::PushVersion()
     /// when NTP implemented, change to just nTime = GetAdjustedTime()
     int64 nTime = (fInbound ? GetAdjustedTime() : GetTime());
     uint64 verification_token = 0;
+
+    //x O.2 fix GetReconnectToken verification_token for tor (not only !fInbound) !!! [
+
     if (
         !fInbound
     ) {
@@ -574,6 +577,8 @@ void CNode::PushVersion()
             );
         }
     }
+
+    //x O.2 fix GetReconnectToken verification_token for tor (not only !fInbound) !!! ]
 
     if (fDebug) {
       if (addr.IsRoutable()) {
@@ -673,7 +678,8 @@ void CNode::copyStats(CNodeStats &stats)
 }
 #undef X
 
-
+// ThreadSocketHandler [
+// 1 [
 
 void ThreadSocketHandler(void* parg)
 {
@@ -696,11 +702,21 @@ void ThreadSocketHandler(void* parg)
     printf("ThreadSocketHandler exited\n");
 }
 
+// 1 ]
+// 2 [
+
 void ThreadSocketHandler2(void* parg)
 {
     printf("ThreadSocketHandler started\n");
     list<CNode*> vNodesDisconnected;
     unsigned int nPrevNodeCount = 0;
+
+    // l.1.1 llog send/rcv [
+
+    int countLlog = 50;
+    int maxPacketSizeLlog = 0x7f;
+
+    // l.1.1 llog send/rcv ]
 
     while (true)
     {
@@ -928,6 +944,8 @@ void ThreadSocketHandler2(void* parg)
             if (fShutdown)
                 return;
 
+            // Receive [
+
             //
             // Receive
             //
@@ -952,6 +970,13 @@ void ThreadSocketHandler2(void* parg)
                         int nBytes = recv(pnode->hSocket, pchBuf, sizeof(pchBuf), MSG_DONTWAIT);
                         if (nBytes > 0)
                         {
+                            // l.1.2 llog recv [
+                            if (countLlog > 0) {
+                                std::wostringstream path;
+                                path << "Node/Net-raw/" << pnode->hSocket << "/recv " << countLlog--;
+                                llogLog(path.str(), L"recv", pchBuf, std::min(nBytes, maxPacketSizeLlog), 0);
+                            }
+                            // l.1.2 llog recv  ]
                             vRecv.resize(nPos + nBytes);
                             memcpy(&vRecv[nPos], pchBuf, nBytes);
                             pnode->nLastRecv = GetTime();
@@ -978,6 +1003,9 @@ void ThreadSocketHandler2(void* parg)
                 }
             }
 
+            // Receive ]
+            // Send [
+
             //
             // Send
             //
@@ -991,6 +1019,16 @@ void ThreadSocketHandler2(void* parg)
                     CDataStream& vSend = pnode->vSend;
                     if (!vSend.empty())
                     {
+                        // l.1.3 llog send [
+
+                        if (countLlog > 0) {
+                            std::wostringstream path;
+                            path << "Node/Net-raw/" << pnode->hSocket << "/send " << countLlog--;
+                            llogLog(path.str(), L"send", &vSend[0], std::min((int)vSend.size(), maxPacketSizeLlog), 0);
+                        }
+
+                        // l.1.3 llog send ]
+
                         int nBytes = send(pnode->hSocket, &vSend[0], vSend.size(), MSG_NOSIGNAL | MSG_DONTWAIT);
                         if (nBytes > 0)
                         {
@@ -1010,6 +1048,9 @@ void ThreadSocketHandler2(void* parg)
                     }
                 }
             }
+
+            // Send ]
+            // Inactivity checking [
 
             //
             // Inactivity checking
@@ -1034,6 +1075,8 @@ void ThreadSocketHandler2(void* parg)
                     pnode->fDisconnect = true;
                 }
             }
+
+            // Inactivity checking ]
         }
         {
             LOCK(cs_vNodes);
@@ -1045,6 +1088,8 @@ void ThreadSocketHandler2(void* parg)
     }
 }
 
+// 2 ]
+// ThreadSocketHandler ]
 
 
 
@@ -1298,6 +1343,7 @@ void static ProcessOneShot()
     }
 }
 
+// ThreadStakeMinter [
 // ppcoin: stake minter thread
 void static ThreadStakeMinter(void* parg)
 {
@@ -1319,9 +1365,14 @@ void static ThreadStakeMinter(void* parg)
     printf("ThreadStakeMinter exiting, %d threads remaining\n", vnThreadsRunning[THREAD_STEALTHER]);
 }
 
+// ThreadStakeMinter ]
+// ThreadOpenConnections2 [
+
 void ThreadOpenConnections2(void* parg)
 {
     printf("ThreadOpenConnections started\n");
+
+    // Connect to specific addresses -connect [
 
     // Connect to specific addresses
     if (mapArgs.count("-connect") && mapMultiArgs["-connect"].size() > 0)
@@ -1343,6 +1394,8 @@ void ThreadOpenConnections2(void* parg)
             Sleep(500);
         }
     }
+
+    // Connect to specific addresses -connect ]
 
     // Initiate network connections
     int64 nStart = GetTime();
@@ -1436,10 +1489,18 @@ void ThreadOpenConnections2(void* parg)
             break;
         }
 
+        // OpenNetworkConnection(addrConnect) [
+
         if (addrConnect.IsValid())
             OpenNetworkConnection(addrConnect, &grant);
+
+        // OpenNetworkConnection(addrConnect) ]
     }
 }
+
+// ThreadOpenConnections2 ]
+// ThreadOpenAddedConnections [
+// 1 [
 
 void ThreadOpenAddedConnections(void* parg)
 {
@@ -1463,6 +1524,9 @@ void ThreadOpenAddedConnections(void* parg)
     }
     printf("ThreadOpenAddedConnections exited\n");
 }
+
+// 1 ]
+// 2 [
 
 void ThreadOpenAddedConnections2(void* parg)
 {
@@ -1535,6 +1599,9 @@ void ThreadOpenAddedConnections2(void* parg)
     }
     printf("ThreadOpenAddedConnections2 exited\n");
 }
+
+// 2 ]
+// ThreadOpenAddedConnections ]
 
 // if successful, this moves the passed grant to the constructed node
 bool OpenNetworkConnection(const CAddress& addrConnect, CSemaphoreGrant *grantOutbound, const char *strDest, bool fOneShot)
@@ -1809,6 +1876,8 @@ void StartTor(void* parg)
 
 }
 
+// StartNode thread [
+
 void StartNode(void* parg)
 {
     // Make this thread recognisable as the startup thread
@@ -1882,7 +1951,7 @@ void StartNode(void* parg)
     GenerateBitcoins(GetBoolArg("-gen", false), pwalletMain);
 }
 
-
+// StartNode thread ]
 
 bool StopNode()
 {

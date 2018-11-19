@@ -11,6 +11,8 @@
 #include "main.h"
 #include "uint256.h"
 
+// Checkpoints [
+
 namespace Checkpoints
 {
     typedef std::map<int, uint256> MapCheckpoints;
@@ -26,6 +28,8 @@ namespace Checkpoints
         boost::assign::map_list_of
         (           0, hashGenesisBlockOfficial )
 		( 206221,   uint256("0x3264decb0ba480370a378f2e017a1efbfd7027988fcb21a834b74bb1fb694a7b") )
+        ( 995801, uint256("0x5e45a507b5fffe6221e7efad8cb4baefaa3566801595628902bda8561cdd5fce") )
+        ( 995802, uint256("0000000115fe515cdfc8ce1cfa9fb5c62b62b2862f0541b843fd058ba12cc771") )
 		;
 
     static MapCheckpoints mapCheckpointsTestnet =
@@ -364,6 +368,8 @@ namespace Checkpoints
         return (pindexSync->GetBlockTime() + nSeconds < GetAdjustedTime());
     }
 }
+
+// Checkpoints ]
 
 // stealth: sync-checkpoint master key (520 bits, 130 hex)
 // this is the public key for a secp256k1 private key

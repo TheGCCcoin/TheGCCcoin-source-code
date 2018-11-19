@@ -9,16 +9,16 @@
         <key>CFBundlePackageType</key>
         <string>APPL</string>
         <key>CFBundleGetInfoString</key>
-        <string>TheGCCcoin [XST] Complete Anonymity 1.2.0.1</string>
+        <string>TheGCCcoin [GCC] Complete Anonymity 2.3.0.1</string>
         <key>CFBundleExecutable</key>
-        <string>TheGCCcoin Qt</string>
+        <string>TheGCCcoin-Qt</string>
         <key>CFBundleIdentifier</key>
         <string>com.TheGCCcoin-Qt.TheGCCcoin-Qt</string>
         <key>CFBundleShortVersionString</key>
-        <string>2.2.3.2</string>
+        <string>2.3.0.1</string>
         <key>CFBundleSignature</key>
         <string>oXST</string>
         <key>CFBundleVersion</key>
-        <string>2.2.3.2</string>
+        <string>2.3.0.1</string>
 </dict>
 </plist>

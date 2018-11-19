@@ -18,8 +18,12 @@ static const int CLIENT_VERSION =
                          +       1 * CLIENT_VERSION_BUILD;
 
 extern const std::string CLIENT_NAME;
-extern const std::string CLIENT_BUILD;
-extern const std::string CLIENT_NUMBERS;
+// v.1.1 fix version - todo: review [
+//extern const std::string CLIENT_BUILD;
+//extern const std::string CLIENT_NUMBERS;
+extern std::string CLIENT_BUILD;
+extern std::string CLIENT_NUMBERS;
+// v.1.1 fix version - todo: review ]
 extern const std::string CLIENT_DATE;
 
 //
@@ -30,10 +34,15 @@ extern const std::string CLIENT_DATE;
 //         Different keys for alerts and hash sync checkpoints
 // 62010 : New rule to accept duplicate stake on bootstrap (only!)
 //         Technically not a network protocol difference
-static const int PROTOCOL_VERSION = 63012;
+// 64001 : Block version 7
+//         Technically not a network protocol difference
+static const int PROTOCOL_VERSION = 64001;
 
-// earlier versions not supported as of Feb 2012, and are disconnected
-static const int MIN_PROTO_VERSION = 61300;
+//// earlier versions not supported as of Feb 2012, and are disconnected
+//static const int MIN_PROTO_VERSION = 61300;
+
+// earlier versions not supported as of Nov 2018, and are disconnected
+static const int MIN_PROTO_VERSION = 64000;
 
 // nTime field added to CAddress, starting with this version;
 // if possible, avoid requesting addresses nodes older than this
@@ -52,8 +61,8 @@ static const int MEMPOOL_GD_VERSION = 60002;
 static const int DATABASE_VERSION = 61201;
 
 #define DISPLAY_VERSION_MAJOR       2
-#define DISPLAY_VERSION_MINOR       2
-#define DISPLAY_VERSION_REVISION    3
-#define DISPLAY_VERSION_BUILD       2
+#define DISPLAY_VERSION_MINOR       3
+#define DISPLAY_VERSION_REVISION    0
+#define DISPLAY_VERSION_BUILD       0
 
 #endif

@@ -1026,6 +1026,8 @@ void ThreadRPCServer3(void* parg)
         JSONRequest jreq;
         try
         {
+            LOCK(cs_THREAD_RPCHANDLER);
+
             // Parse request
             Value valRequest;
             if (!read_string(strRequest, valRequest))

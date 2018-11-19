@@ -2325,6 +2325,8 @@ bool CWallet::GetStakeWeight(const CKeyStore& keystore, uint64& nMinWeight, uint
     return true;
 }
 
+// CreateCoinStake [
+
 bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int64 nSearchInterval, CTransaction& txNew)
 {
     // The following split & combine thresholds are important to security
@@ -2349,6 +2351,19 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     int64 nReserveBalance = 0;
     if (mapArgs.count("-reservebalance") && !ParseMoney(mapArgs["-reservebalance"], nReserveBalance))
         return error("CreateCoinStake : invalid reserve balance amount");
+
+    //x l.4 llog stake [
+/*
+    llogLog(L"Miner/pos/Stake0", L"pIndex0->nHeight", pIndex0->nHeight);
+    llogLog(L"Miner/pos/Stake0", L"nCombineThreshold", nCombineThreshold);
+    llogLog(L"Miner/pos/Stake0", L"bnTargetPerCoinDay", bnTargetPerCoinDay.GetHex().c_str());
+    llogLog(L"Miner/pos/Stake0", L"nBalance", nBalance);
+    llogLog(L"Miner/pos/Stake0", L"nReserveBalance", nReserveBalance);
+
+    llogLog(L"Miner/pos/Stake1", L"(nBalance <= nReserveBalance)?", (nBalance <= nReserveBalance));
+*/
+    //x l.4 llog stake ]
+
     if (nBalance <= nReserveBalance)
         return false;
 
@@ -2500,6 +2515,8 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     int64 nMinFee = 0;
     while (true)
     {
+        // pos: set tx out [
+
         // Set output amount
         if (txNew.vout.size() == 3)
         {
@@ -2508,6 +2525,8 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
         }
         else
             txNew.vout[1].nValue = nCredit - nMinFee;
+
+        // pos: set tx out ]
 
         // Sign
         int nIn = 0;
@@ -2534,12 +2553,15 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
                 printf("CreateCoinStake : fee for coinstake %s\n", FormatMoney(nMinFee).c_str());
             break;
         }
+
+        llogLog(L"Miner/pos/1", L"CreateCoinStake", txNew);
     }
 
     // Successfully generated coinstake
     return true;
 }
 
+// CreateCoinStake ]
 
 // Call after CreateTransaction unless you want to abort
 bool CWallet::CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey)

@@ -1,0 +1,6 @@
+# Mac specific
+.DS_Store
+build
+.idea
+TheGCCcoin.pro.user
+src/TheGCCcoind

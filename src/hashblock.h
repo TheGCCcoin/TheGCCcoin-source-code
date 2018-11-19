@@ -16,6 +16,8 @@
 #include "sph_hamsi.h"
 #include "sph_fugue.h"
 
+#include "livelog/llog-dump.h"
+
 #ifndef QT_NO_DEBUG
 #include <string>
 #endif
@@ -88,7 +90,9 @@ inline uint256 Hash9(const T1 pbegin, const T1 pend)
     //std::string strhash;
     //strhash = "";
 #endif
-    
+
+//    llogLog(L"Hash", L"hashblock", static_cast<const void*>(&pbegin[0]), (pend - pbegin) * sizeof(pbegin[0]), 0);
+
     uint512 hash[17];
 
     sph_blake512_init(&ctx_blake);

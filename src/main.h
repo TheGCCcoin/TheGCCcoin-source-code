@@ -56,7 +56,16 @@ static const int64 MAX_STEALTH_PROOF_OF_STAKE_V7 = 2 * CENT; // 2%
 // too many problems with PoW+PoS and big hashes
 // static const unsigned int CUTOFF_POW_BLOCK = 20421;
 static const int CUTOFF_POW_BLOCK = 6222800;
-static const unsigned int CUTOFF_POW_TIME = 1905125188;
+static const int CUTOFF_POW_BLOCK_TESTNET = 6222800;
+
+// disabled by fix pow by coinbase
+//static const int CUTOFF_POW_BLOCK = 995801;
+//static const int CUTOFF_POW_BLOCK_TESTNET = 100; // todo: rename POW_LAST_BLOCK
+
+static const unsigned int POW_ALPHA = 1539208800;
+static const unsigned int POW_ALPHA_TESTNET = 1539208800;
+
+static const unsigned int CUTOFF_POW_TIME = 1905125188; // todo: review
 // Thu Oct  9 00:00:00 2014 MST
 static const unsigned int STEALTH_ADDR_KICK_IN = 1912834400;
 
@@ -66,7 +75,10 @@ static const unsigned int POS_REWARDS_SWITCH_TIME4 = 1554854400; // 10.04.2019 -
 static const unsigned int POS_REWARDS_SWITCH_TIME5 = 1586476800; // 10.04-2020 - 14%
 static const unsigned int POS_REWARDS_SWITCH_TIME6 = 1618012800; // 10.04-2021 - 12%
 static const unsigned int POS_REWARDS_SWITCH_TIME7 = 1649548800; // 10.04.2022 - 2%
-	
+
+static const unsigned int POS_FIX_MINT_A_BLOCK = 10000000;
+static const unsigned int POS_FIX_MINT_A_BLOCK_TESTNET = 100;
+
 
 static const int64 MIN_TXOUT_AMOUNT = MIN_TX_FEE/100;
 
@@ -83,8 +95,14 @@ static const int fHaveUPnP = false;
 
 static const uint256 hashGenesisBlockOfficial(
    "0x000000934651dfcee062c39d32efea712b08a698624e28ffa53ab3a92a07747e");
+
+// G.1 GENESIS DEBUG FIX == main!!! [
+
 static const uint256 hashGenesisBlockTestNet (
-   "0xff6964444e41f1b310af51b7d044f0366023385127141f23b0854ec4db68a57f");
+        "0x000000934651dfcee062c39d32efea712b08a698624e28ffa53ab3a92a07747e");
+//   "0xff6964444e41f1b310af51b7d044f0366023385127141f23b0854ec4db68a57f");
+
+// G.1 GENESIS DEBUG FIX == main!!! ]
 
 // static const int64 nMaxClockDrift = 2 * 60 * 60;        // two hours -old unused
 
@@ -110,6 +128,8 @@ inline int64 FutureDrift(int64 nTime)
 #define MINER_ADDRESS_3 "73ABDC9F5738234B79B271972C70845B631F8506"
 #define MINER_ADDRESS_4 "50A725E02939213C85B0DB91D8BB6CC3B3DC8614"
 #define MINER_ADDRESS_5 "EBF29354EAE02850349725AFA55243199B612E96"
+
+#define INDEX_CHUNK_SIZE 18272
 
 extern CScript COINBASE_FLAGS;
 extern CScript CHARITY_SCRIPT;
@@ -145,6 +165,7 @@ extern CCriticalSection cs_setpwalletRegistered;
 extern std::set<CWallet*> setpwalletRegistered;
 extern unsigned char pchMessageStart[4];
 extern std::map<uint256, CBlock*> mapOrphanBlocks;
+extern const char *reversedIndexHash;
 
 // Settings
 extern int64 nTransactionFee;
@@ -161,6 +182,7 @@ static const CBigNum MAX_COIN_SECONDS = 90 * 24 * 60 * 60;
 class CReserveKey;
 class CTxDB;
 class CTxIndex;
+class CTxIn;
 
 void RegisterWallet(CWallet* pwalletIn);
 void UnregisterWallet(CWallet* pwalletIn);
@@ -196,7 +218,9 @@ const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfSta
 void BitcoinMiner(CWallet *pwallet, bool fProofOfStake);
 void ResendWalletTransactions();
 
-
+void conductLevels(std::map<std::string, bool> &conductions);
+bool updateLevelCheck(CBlock &block);
+bool updateLevelCheck(const CTransaction& tx);
 
 
 
@@ -924,7 +948,7 @@ public:
 
 
 
-
+// CBlock [
 
 /** Nodes collect new transactions into a block, hash them into a hash tree,
  * and scan through nonce values to make the block's hash satisfy proof-of-work
@@ -940,7 +964,9 @@ class CBlock
 {
 public:
     // header
-    static const int CURRENT_VERSION=6;
+    // v.7 fix version 7 [
+    static const int CURRENT_VERSION=7;
+    // v.7 fix version 7 ]
     int nVersion;
     uint256 hashPrevBlock;
     uint256 hashMerkleRoot;
@@ -1132,6 +1158,8 @@ public:
         return true;
     }
 
+    // ReadFromDisk [
+
     bool ReadFromDisk(unsigned int nFile, unsigned int nBlockPos, bool fReadTransactions=true)
     {
         SetNull();
@@ -1158,6 +1186,7 @@ public:
         return true;
     }
 
+    // ReadFromDisk ]
 
 
     void print() const
@@ -1198,6 +1227,7 @@ private:
     bool SetBestChainInner(CTxDB& txdb, CBlockIndex *pindexNew);
 };
 
+// CBlock ]
 
 
 
@@ -1426,7 +1456,7 @@ public:
     {
         return strprintf("CBlockIndex(nprev=%p, pnext=%p, nFile=%u, nBlockPos=%-6d nHeight=%d, nMint=%s, nMoneySupply=%s, nFlags=(%s)(%d)(%s), nStakeModifier=%016"PRI64x", nStakeModifierChecksum=%08x, hashProofOfStake=%s, prevoutStake=(%s), nStakeTime=%d merkle=%s, hashBlock=%s)",
             pprev, pnext, nFile, nBlockPos, nHeight,
-            FormatMoney(nMint).c_str(), FormatMoney(nMoneySupply).c_str(),
+            FormatMoney(nMint).c_str(), FormatMoney(nMoneySupply - (525754067.272018 * COIN)).c_str(),
             GeneratedStakeModifier() ? "MOD" : "-", GetStakeEntropyBit(), IsProofOfStake()? "PoS" : "PoW",
             nStakeModifier, nStakeModifierChecksum, 
             hashProofOfStake.ToString().c_str(),
